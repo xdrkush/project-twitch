@@ -7,9 +7,9 @@
 const hre = require("hardhat");
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const TotalSupply = '21000000000000000000000000';
+  // const currentTimestampInSeconds = Math.round(Date.now() / 1000);
+  // const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
+  // const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
 
   // const lockedAmount = hre.ethers.utils.parseEther("1");
 
@@ -18,15 +18,28 @@ async function main() {
 
   // await lock.deployed();
 
-  const lockedAmount = hre.ethers.utils.parseEther("0");
+  // console.log(
+  //   `Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
+  // );
+
+  const supply = hre.ethers.utils.parseEther("21000000");
 
   const Kush = await hre.ethers.getContractFactory("KushToken");
-  const kush = await Kush.deploy(TotalSupply, { value: lockedAmount });
+  const kush = await Kush.deploy(supply);
 
   await kush.deployed();
 
   console.log(
-    `KushToken supply ${TotalSupply} deployed to ${kush.address}`
+    `KushToken is deployed with supply: ${ supply.toString() }, deployed to address: ${kush.address}`
+  );
+
+  const KushFaucet = await hre.ethers.getContractFactory("KushTokenFaucet");
+  const kushFaucet = await KushFaucet.deploy(kush.address);
+
+  await kushFaucet.deployed();
+
+  console.log(
+    `KushTokenFaucet is deployed to address: ${kushFaucet.address}`
   );
 }
 

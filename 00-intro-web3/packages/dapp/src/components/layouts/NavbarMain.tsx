@@ -92,23 +92,23 @@ export function NavbarMain() {
 
     async function handleBtnConnectSiteClick() {
         try {
-          if (!window.ethereum)
-            throw new Error("NO_ETH_BROWSER_WALLET"); 
-    
+            if (!window.ethereum)
+                throw new Error("NO_ETH_BROWSER_WALLET");
+
             const accounts = await window.ethereum.request({
-              method: "eth_requestAccounts",
+                method: "eth_requestAccounts",
             });
             const account = accounts[0];
             if (account) {
-              await handleInitialConnection(account);
+                await handleInitialConnection(account);
             } else {
-              throw new Error("FAILED_TO_CONNECT");
+                throw new Error("FAILED_TO_CONNECT");
             }
-    
+
         } catch (err: any) {
-          setError(err.message);
+            setError(err.message);
         }
-      }
+    }
 
     return (
         <Box>
@@ -158,25 +158,29 @@ export function NavbarMain() {
                     direction={'row'}
                     spacing={6}>
 
-                    <Box>
-                        <Box><Text>balance: {balance}</Text></Box>
-                        <Box><Text>{address}</Text></Box>
-                    </Box>
+                    {address.length >= 1 && (
+                        <Box>
+                            <Box><Text>balance: {balance}</Text></Box>
+                            <Box><Text>{address}</Text></Box>
+                        </Box>
+                    )}
+
+                    {address.length <= 0 && (
+                        <Button
+                            display={'inline-flex'}
+                            fontSize={'sm'}
+                            fontWeight={600}
+                            color={'white'}
+                            bg={'primary.500'}
+                            onClick={handleBtnConnectSiteClick}
+                            _hover={{
+                                bg: 'primary.500',
+                            }}>
+                            Connect Wallet
+                        </Button>
+                    )}
 
                     <ColorModeSwitcher justifySelf="flex-end" />
-
-                    <Button
-                        display={'inline-flex'}
-                        fontSize={'sm'}
-                        fontWeight={600}
-                        color={'white'}
-                        bg={'primary.500'}
-                        onClick={handleBtnConnectSiteClick}
-                        _hover={{
-                            bg: 'primary.500',
-                        }}>
-                        Connect Wallet
-                    </Button>
                 </Stack>
             </Flex>
 

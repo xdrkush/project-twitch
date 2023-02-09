@@ -7,6 +7,24 @@ addr2: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 
 # Error
 
+Deploy contract with hardhat in local:
+```sh
+npx hardhat run --network localhost scripts/deploy.js
+```
+
+si vous avez l'erreur ci-dessous, quand vous voulez run `npx hardhat ...` aussi si vous utiliser `npm run ...`.
+
+```sh
+Error HH12: Trying to use a non-local installation of Hardhat, which is not supported.
+Please install Hardhat locally using npm or Yarn, and try again.
+```
+
+En gros quand vous supprimer les node_modules, ... VSC n'arrive pas à refaire la maj du cache, vous pourriez aussi avoir le probleme pour lancer la blockchain hardhat (`npx hardhat node`) pareil son cache est initialiser avec une certaine arboresence sur la machine, ce qui varie d'une machine, vous pourriez très bien reinstaller hardhat (`npx hardhat`) directement dans `<repo>/packages/hardhat-project`, dans ce cas la n'oublier de re-importer les scripts du README.md et de re-importer les contract, test, deploy, ...
+
+  - https://stackoverflow.com/a/69973620/10442954
+
+______
+
 si vous avez l'erreur ci-dessous, quand vous deployer un contrat depuis remix avec metamask.
 
 ```sh
