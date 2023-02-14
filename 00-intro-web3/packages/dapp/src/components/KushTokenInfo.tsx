@@ -46,7 +46,7 @@ export const KushTokenInfo = () => {
       const contractWithSigner = contract.connect(signer);
 
       // Bug au niveau proportions dans metamask je sais pas pourqoi à règler
-      const total = ethers.utils.parseUnits(ether, 0);
+      const total = ethers.utils.parseUnits(ether, 18);
       const tx = contractWithSigner.transfer(`${addr}`, total);
 
       const gasPrice = ethers.utils.formatEther(Number(tx.gasPrice))

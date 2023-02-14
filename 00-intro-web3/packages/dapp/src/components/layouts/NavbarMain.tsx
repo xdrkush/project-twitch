@@ -24,91 +24,14 @@ import {
 } from '@chakra-ui/icons';
 import { ColorModeSwitcher } from "../ColorModeSwitcher"
 import { ethers } from 'ethers';
-import { Web3Provider } from "@ethersproject/providers"
+
 // import { Provider } from '../../types';
 
 console.log('ethers', ethers)
 
-export function NavbarMain() {
-    // const [error, setError] = useState('');
-    const [address, setAddress] = useState('');
+export function NavbarMain(props: any) {
+    const { address, balance, isConnected, fnConnected } = props
     const { isOpen, onToggle } = useDisclosure();
-    // let provider: Provider;
-
-    const [error, setError] = useState('');
-    const [siteConnected, setSiteConnected] = useState(false);
-    const [balance, setBalance] = useState("");
-
-    // const handleNewTx = (tx: Transaction) => {
-    //   const updatedTxs: Transaction[] = [...txs, tx];
-    //   setTxs(updatedTxs);
-    //   localStorage.setItem('txs', JSON.stringify(updatedTxs))
-    //   setBalance(
-    //     // @ts-ignore
-    //     (Number(balance) - tx.gasPrice - tx.value).toString()
-    //   );
-    // };
-
-    // const handleSubmit = async (e: any) => {
-    //   e.preventDefault();
-    //   const data = new FormData(e.target);
-    //   if (error) setError('');
-    //   await startPayment({
-    //     setError,
-    //     handleNewTx,
-    //     ether: data.get("ether")?.toString() || '',
-    //     addr: data.get("addr")?.toString() || '',
-    //   });
-    // };
-
-    const handleInitialConnection = async (account: string) => {
-        setSiteConnected(true);
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const balance = await provider.getBalance(account);
-        const formattedBalance = ethers.utils.formatEther(balance);
-        if (formattedBalance) setBalance(formattedBalance.toString());
-    };
-
-    useEffect(() => {
-        const isBrowserWalletConnected = async () => {
-            if (!window.ethereum)
-                throw new Error("NO_ETH_BROWSER_WALLET");
-
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const accounts = await provider.listAccounts();
-            if (accounts?.length > 0) {
-                const account = accounts[0];
-                await handleInitialConnection(account);
-                setAddress(account)
-            }
-
-        }
-        try {
-            isBrowserWalletConnected();
-        } catch (err: any) {
-            setError(err.message);
-        }
-    }, []);
-
-    async function handleBtnConnectSiteClick() {
-        try {
-            if (!window.ethereum)
-                throw new Error("NO_ETH_BROWSER_WALLET");
-
-            const accounts = await window.ethereum.request({
-                method: "eth_requestAccounts",
-            });
-            const account = accounts[0];
-            if (account) {
-                await handleInitialConnection(account);
-            } else {
-                throw new Error("FAILED_TO_CONNECT");
-            }
-
-        } catch (err: any) {
-            setError(err.message);
-        }
-    }
 
     return (
         <Box>
@@ -158,21 +81,22 @@ export function NavbarMain() {
                     direction={'row'}
                     spacing={6}>
 
-                    {address.length >= 1 && (
+                    {isConnected && (
                         <Box>
-                            <Box><Text>balance: {balance}</Text></Box>
                             <Box><Text>{address}</Text></Box>
+                            <Box><Text>balance: {balance}</Text></Box>
+                            <Box><Text>connected: {isConnected.toString()}</Text></Box>
                         </Box>
                     )}
 
-                    {address.length <= 0 && (
+                    {!isConnected && (
                         <Button
                             display={'inline-flex'}
                             fontSize={'sm'}
                             fontWeight={600}
                             color={'white'}
                             bg={'primary.500'}
-                            onClick={handleBtnConnectSiteClick}
+                            onClick={fnConnected}
                             _hover={{
                                 bg: 'primary.500',
                             }}>

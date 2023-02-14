@@ -7,12 +7,39 @@ addr2: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 
 # Error
 
+Erreur avec les types de "ethers", dans react 
+
+```sh
+ERROR in ./src/components/KushTokenInfo.tsx 23:23-52
+export 'ethers'.'providers' (imported as 'ethers') was not found in 'ethers' (possible exports:
+
+ou
+
+'"ethers"' n'a aucun membre exporté nommé 'BigNumber'. Est-ce que vous pensiez à 'BigNumberish' ?
+
+ou
+
+La propriété 'providers' n'existe pas sur le type 'typeof import("/home/arinfo/Bureau/project-twitch/00-intro-web3/packages/dapp/node_modules/ethers/types/ethers")'
+
+...
+```
+Enfète le probleme viens du faites que on utilise une librairie de ethers qui a une version très récentes
+
+pour le corriger allez sur:
+  - https://docs.ethers.org/v6-beta/getting-started/
+
+`npm i ethers/beta-exports`
+
+______
+
 Deploy contract with hardhat in local:
 ```sh
 npx hardhat run --network localhost scripts/deploy.js
 ```
 
 si vous avez l'erreur ci-dessous, quand vous voulez run `npx hardhat ...` aussi si vous utiliser `npm run ...`.
+
+______
 
 ```sh
 Error HH12: Trying to use a non-local installation of Hardhat, which is not supported.
@@ -32,5 +59,5 @@ Nonce too high. Expected nonce to be 0 but got 1. Note that transactions can't b
 ```
 
 Enfète ça viens du faites que vous avez du redémarrer votre blockchain hardhat et quand vous utiliser metamask pour vous connecter il ne connais votre wallet, enfin pas sur la nouvelle chain qui à été lancer donc vous devez re-initialiser votre compte dans metamask.
-
   - https://medium.com/@thelasthash/solved-nonce-too-high-error-with-metamask-and-hardhat-adc66f092cd
+
