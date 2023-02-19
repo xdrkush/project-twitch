@@ -22,6 +22,7 @@ async function main() {
   //   `Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
   // );
 
+  // Kush Token
   const supply = hre.ethers.utils.parseEther("21000000");
 
   const Kush = await hre.ethers.getContractFactory("KushToken");
@@ -33,13 +34,24 @@ async function main() {
     `KushToken is deployed with supply: ${ supply.toString() }, deployed to address: ${kush.address}`
   );
 
-  const KushFaucet = await hre.ethers.getContractFactory("KushTokenFaucet");
+  // Kush Faucet (with erc20)
+  const KushFaucet = await hre.ethers.getContractFactory("KushFaucet");
   const kushFaucet = await KushFaucet.deploy(kush.address);
 
   await kushFaucet.deployed();
 
   console.log(
     `KushTokenFaucet is deployed to address: ${kushFaucet.address}`
+  );
+
+  // Kush NFT
+  const KushNFT = await hre.ethers.getContractFactory("KushNFT");
+  const kushNFT = await KushNFT.deploy("KushNFT", "KUSH");
+
+  await kushNFT.deployed();
+
+  console.log(
+    `KushNFT is deployed to address: ${kushNFT.address}`
   );
 }
 

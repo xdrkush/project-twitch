@@ -30,7 +30,7 @@ import { ethers } from 'ethers';
 console.log('ethers', ethers)
 
 export function NavbarMain(props: any) {
-    const { address, balance, isConnected, fnConnected } = props
+    const { address, balance, isConnected, fnConnected, isOwner } = props
     const { isOpen, onToggle } = useDisclosure();
 
     return (
@@ -84,7 +84,7 @@ export function NavbarMain(props: any) {
                     {isConnected && (
                         <Box>
                             <Box><Text>{address}</Text></Box>
-                            <Box><Text>balance: {balance}</Text></Box>
+                            <Box><Text>balance: {balance} | {isOwner === true && ( <> Owner </> )}</Text></Box>
                             <Box><Text>connected: {isConnected.toString()}</Text></Box>
                         </Box>
                     )}

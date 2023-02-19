@@ -1,11 +1,11 @@
 {
   "name": "hardhat-project",
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^2.0.1",
-    "hardhat": "^2.12.7"
+    "@nomicfoundation/hardhat-toolbox": "^2.0.1"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.8.1"
+    "@openzeppelin/contracts": "^4.8.1",
+    "hardhat": "^2.12.7"
   },
   "scripts": {
     "help": "npx hardhat help",
