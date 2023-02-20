@@ -15,8 +15,5 @@ export const HomePage = () => (
     <Grid minH="100vh">
       <TxEthereum />
     </Grid>
-    <Grid minH="100vh">
-      <KushTokenInfo />
-    </Grid>
   </Box>
 )

@@ -60,7 +60,7 @@ export function NavbarMain(props: any) {
                 </Flex>
                 <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
                     <Link
-                        href={'#/home'}
+                        href={'#/'}
                         color={useColorModeValue('gray.800', 'white')}
                         fontSize={'lg'}
                         _hover={{
@@ -271,5 +271,13 @@ const NAV_ITEMS: Array<NavItem> = [
     {
         label: 'Acceuil',
         href: '#/',
+    },
+    {
+        label: 'Token',
+        href: '#/token',
+    },
+    {
+        label: 'NFT',
+        href: '#/nft',
     },
 ];

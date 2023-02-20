@@ -15,6 +15,7 @@ import { ethers, BigNumber } from 'ethers';
 import { useEffect, useState } from 'react';
 import { KushABI } from "../config/KushABI"
 import { KushFaucetABI } from "../config/KushFaucetABI"
+import { config } from '../config';
 
 export const KushTokenInfo = () => {
   const [totalSupply, setTotalSupply] = useState('')
@@ -36,8 +37,8 @@ export const KushTokenInfo = () => {
   const [txs, setTxs] = useState([]);
   const provider = new ethers.providers.Web3Provider(window.ethereum)
   const signer = provider.getSigner();
-  const KushToken = new ethers.Contract('0x5fbdb2315678afecb367f032d93f642f64180aa3', KushABI, provider)
-  const KushTokenFaucet = new ethers.Contract('0xe7f1725e7734ce288f8367e1bb143e90bb3f0512', KushFaucetABI, provider)
+  const KushToken = new ethers.Contract(config.token, KushABI, provider)
+  const KushTokenFaucet = new ethers.Contract(config.faucet, KushFaucetABI, provider)
   const contract = KushToken.connect(provider)
   const contractFaucet = KushTokenFaucet.connect(provider)
 

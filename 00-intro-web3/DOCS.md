@@ -28,7 +28,7 @@ Enfète le probleme viens du faites que on utilise une librairie de ethers qui a
 pour le corriger allez sur:
   - https://docs.ethers.org/v6-beta/getting-started/
 
-`npm i ethers/beta-exports`
+`npm i ethers@beta-exports`
 
 ______
 

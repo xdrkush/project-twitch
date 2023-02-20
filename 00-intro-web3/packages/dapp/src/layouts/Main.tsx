@@ -76,7 +76,7 @@ export const MainLayout = () => {
             setError(err.message);
         }
 
-    }, []);
+    }, [provider]);
 
     const loadContract = async () => {
         console.log('loadContract', await contract.owner(), address)
