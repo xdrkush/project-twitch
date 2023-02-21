@@ -25,16 +25,12 @@ import {
 import { ColorModeSwitcher } from "../ColorModeSwitcher"
 import { ethers } from 'ethers';
 
-// import { Provider } from '../../types';
-
-console.log('ethers', ethers)
-
 export function NavbarMain(props: any) {
-    const { address, balance, isConnected, fnConnected, isOwner } = props
+    const { account, balance, isConnected, fnConnected, isOwner } = props
     const { isOpen, onToggle } = useDisclosure();
 
     return (
-        <Box>
+        <>
             <Flex
                 bg={useColorModeValue('white', 'gray.800')}
                 color={useColorModeValue('gray.600', 'white')}
@@ -44,7 +40,10 @@ export function NavbarMain(props: any) {
                 borderBottom={1}
                 borderStyle={'solid'}
                 borderColor={useColorModeValue('gray.200', 'gray.900')}
-                align={'center'}>
+                align={'center'}
+                w="100%"
+                zIndex={"10"}
+                position="fixed">
                 <Flex
                     flex={{ base: 1, md: 'auto' }}
                     ml={{ base: -2 }}
@@ -83,9 +82,8 @@ export function NavbarMain(props: any) {
 
                     {isConnected && (
                         <Box>
-                            <Box><Text>{address}</Text></Box>
+                            <Box><Text>{account}</Text></Box>
                             <Box><Text>balance: {balance} | {isOwner === true && ( <> Owner </> )}</Text></Box>
-                            <Box><Text>connected: {isConnected.toString()}</Text></Box>
                         </Box>
                     )}
 
@@ -111,7 +109,7 @@ export function NavbarMain(props: any) {
             <Collapse in={isOpen} animateOpacity>
                 <MobileNav />
             </Collapse>
-        </Box>
+        </>
     );
 }
 
@@ -275,6 +273,10 @@ const NAV_ITEMS: Array<NavItem> = [
     {
         label: 'Token',
         href: '#/token',
+    },
+    {
+        label: 'Faucet',
+        href: '#/faucet',
     },
     {
         label: 'NFT',

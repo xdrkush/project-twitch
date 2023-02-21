@@ -12,8 +12,10 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { ethers } from 'ethers';
+import { useOutletContext } from "react-router-dom";
 
-export const TxEthereum = () => {
+export const TxEthereum = (props: any) => {
+    const { provider, siteConnected, isOwner, account, signer }: any = useOutletContext()
     const [error, setError] = useState('');
     const [amount, setAmount] = useState('');
     const [address, setAddress] = useState('');
@@ -25,8 +27,6 @@ export const TxEthereum = () => {
             if (!window.ethereum)
                 throw new Error("NO_ETH_BROWSER_WALLET");
 
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = provider.getSigner();
             const tx = await signer.sendTransaction({
                 to: addr,
                 value: ethers.utils.parseEther(ether)

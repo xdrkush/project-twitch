@@ -5,15 +5,17 @@ import {
 
 import { HeroHome } from "../components/HeroHome"
 import { TxEthereum } from "../components/TxEthereum"
-import { KushTokenInfo } from "../components/KushTokenInfo"
 
-export const HomePage = () => (
-  <Box textAlign="center" fontSize="xl">
-    <Grid minH="100vh">
-      <HeroHome />
-    </Grid>
-    <Grid minH="100vh">
-      <TxEthereum />
-    </Grid>
-  </Box>
-)
+export const HomePage = () => {
+
+  return (
+    <Box textAlign="center" fontSize="xl">
+      <Grid minH="100vh">
+        <HeroHome title="Home" />
+      </Grid>
+      <Grid minH="100vh">
+        <TxEthereum />
+      </Grid>
+    </Box>
+  )
+}

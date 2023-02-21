@@ -8,6 +8,7 @@ import { MainLayout } from "./layouts/Main";
 // Pages
 import { HomePage } from "./pages/Home";
 import { KushTokenPage } from "./pages/KushToken";
+import { KushFaucetPage } from "./pages/KushFaucet";
 import { KushNFTPage } from "./pages/KushNFT";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
@@ -22,6 +23,8 @@ export const App = () => (
         <Route index element={<HomePage />} />
         {/* /token */}
         <Route path="token" element={<KushTokenPage />} />
+        {/* /faucet */}
+        <Route path="faucet" element={<KushFaucetPage />} />
         {/* /nft */}
         <Route path="nft" element={<KushNFTPage />} />
 
