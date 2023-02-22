@@ -18,7 +18,7 @@ import { KushFaucetABI } from "../config/KushFaucetABI"
 import { config } from '../config';
 import { useOutletContext } from "react-router-dom";
 
-export const KushTokenInfo = (props: any) => {
+export const KushTokenInfo = () => {
   const { provider, siteConnected, isOwner, account, signer }: any = useOutletContext()
   console.log('KushTokenInfo', account)
 
@@ -79,6 +79,12 @@ export const KushTokenInfo = (props: any) => {
 
   }
 
+  useEffect(() => {
+    if (!window.ethereum)
+      return
+    loadContract()
+  }, [])
+
   const sendTx = async () => {
     console.log('sendTx', amount, address)
 
@@ -89,12 +95,6 @@ export const KushTokenInfo = (props: any) => {
       addr: addressTo?.toString() || '',
     });
   };
-
-  useEffect(() => {
-    if (!window.ethereum)
-      return
-    loadContract()
-  }, [])
 
   // console.log('KushToken', provider, KushToken, totalSupply)
 
