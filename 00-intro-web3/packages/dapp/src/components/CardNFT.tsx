@@ -23,8 +23,9 @@ export default function CardNFT(props: any) {
     const [NFT, setNFT] = useState<C>()
 
     const loadContract = async () => {
-        console.log('getNFT', collection_id, nft_id,Number(await kushNFT.getCollectionIndexs(collection_id, nft_id)))
-        const col = await kushNFT.getCollectionIndexs(collection_id, nft_id)
+        console.log('getNFT', collection_id, nft_id)
+        const col = await kushNFT.getNFT(nft_id)
+        console.log('getNFT 2', col)
         setNFT({ id: Number(col[0]), title: String(col[1]) })
     }
 

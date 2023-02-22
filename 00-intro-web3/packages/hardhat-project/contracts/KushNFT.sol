@@ -27,7 +27,6 @@ contract KushNFT is ERC721 {
         string title;
         address author;
         uint256 totalSupply;
-        mapping(uint256 => uint256) tokenURIs;
         mapping(uint256 => uint256) tokenIndexs;
     }
 
@@ -36,6 +35,14 @@ contract KushNFT is ERC721 {
 
     constructor( string memory name, string memory symbol ) ERC721(name, symbol) {}
 
+    function getTotalSupplyNFT() public view returns (uint256) {
+        return totalSupplyNFT._value;
+    }
+
+    function getTotalSupplyCollection() public view returns (uint256) {
+        return totalSupplyCollection._value;
+    }
+
     function createCollection(string memory _title) public {
         uint256 id = totalSupplyCollection.current();
         totalSupplyCollection.increment();
@@ -43,14 +50,6 @@ contract KushNFT is ERC721 {
         NFTInfosCollections[id].id = id;
         NFTInfosCollections[id].title = _title;
         NFTInfosCollections[id].author = msg.sender;
-    }
-
-    function getTotalSupplyNFT() public view returns (uint256) {
-        return totalSupplyNFT._value;
-    }
-
-    function getTotalSupplyCollection() public view returns (uint256) {
-        return totalSupplyCollection._value;
     }
 
     function getCollectionInfo( uint256 id) public view returns (uint256, string memory, address, uint256) {
@@ -64,8 +63,15 @@ contract KushNFT is ERC721 {
         return (col.id, col.title, col.author, col.totalSupply);
     }
 
-    function getCollectionIndexs( uint256 _collection_id, uint256 _index) public view returns (uint256) {
-        return NFTInfosCollections[_collection_id].tokenIndexs[_index];
+    function getCollectionIndexs(uint256 _collection_id) public view returns (uint256[] memory) {
+        NFTInfoCollection storage collection = NFTInfosCollections[_collection_id];
+        uint256[] memory values = new uint256[](collection.totalSupply);
+        
+        for (uint256 i = 0; i < collection.totalSupply; i++) {
+            uint256 id = collection.tokenIndexs[i];
+            values[i] = id;
+        }
+        return (values);
     }
 
     function getNFT(uint256 _id) public view returns (NFTInfo memory) {
@@ -76,7 +82,7 @@ contract KushNFT is ERC721 {
         if (NFTInfosCollections[_collection_id].id != _collection_id) {
             revert("_collection_id is invalid !");
         }
-        uint256 id = totalSupplyNFT.current();
+        uint256 tokenid = totalSupplyNFT.current();
         totalSupplyNFT.increment();
 
         require(
@@ -85,16 +91,15 @@ contract KushNFT is ERC721 {
             "MyNFTContract: total supply overflow"
         );
 
-        NFTInfos[id] = NFTInfo(id, _title);
+        NFTInfos[tokenid] = NFTInfo(tokenid, _title);
 
-        uint256 newID = NFTInfosCollections[_collection_id].totalSupply + 1;
-
+        uint256 index = NFTInfosCollections[_collection_id].totalSupply;
+        
         NFTInfosCollections[_collection_id].totalSupply += 1;
-        NFTInfosCollections[_collection_id].tokenIndexs[newID] = id;
-        NFTInfosCollections[_collection_id].tokenURIs[id] = id;
+        NFTInfosCollections[_collection_id].tokenIndexs[index] = tokenid;
 
-        _mint(_to, id);
+        _mint(_to, tokenid);
 
-        return id;
+        return tokenid;
     }
 }

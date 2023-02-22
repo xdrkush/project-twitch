@@ -20,11 +20,14 @@ export default function ListCollection(props: any) {
     type C = { id: number, title: string, author: string, totalSupply: number };
 
     const [collection, setCollection] = useState<C>()
+    const [listIdNFTs, setListIdNFTs] = useState([])
 
     const loadContract = async () => {
         console.log('getCollection', (await kushNFT.getCollectionInfo(collection_id)))
         const col = await kushNFT.getCollectionInfo(collection_id.toString())
         setCollection({ id: Number(col[0]), title: String(col[1]), author: String(col[2]), totalSupply: Number(col[3]) })
+        setListIdNFTs(await kushNFT.getCollectionIndexs(collection_id.toString()))
+        console.log('ICICICI', listIdNFTs)
     }
 
     useEffect(() => {
@@ -49,8 +52,8 @@ export default function ListCollection(props: any) {
                     <Container maxW={'6xl'} mt={10}>
                         <Flex display={{ md: "flex" }} justify="center">
                             {Number(collection.totalSupply) > 0 &&
-                                Array.from(Array(Number(collection.totalSupply)).keys()).map((el) => (
-                                    <CardNFT key={el} nft_id={el} collection_id={collection.id} />
+                                listIdNFTs.map((el) => (
+                                    <CardNFT key={Number(el)} nft_id={String(el)} collection_id={collection.id} />
                                 ))}
 
                         </Flex>

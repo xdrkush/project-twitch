@@ -71,4 +71,33 @@ describe("KushNFT", () => {
             expect((await kushNFT.getCollectionInfo(0))[1]).to.equal("col1")
         })
     });
+
+    describe("GET NFTs", () => {
+        // Check if collection is good for NO-owner
+        it("ALL ID NFT in Collection", async () => {
+            // Create Collection
+            await kushNFT.createCollection('col1')
+            await kushNFT.createCollection('col2')
+
+            // Create NFTs (in collection)
+            await kushNFT.mint(addr1.address, 0, 'nft1-col1')
+            await kushNFT.mint(addr1.address, 0, 'nft2-col1')
+            await kushNFT.mint(addr1.address, 1, 'nft1-col2')
+            await kushNFT.mint(addr1.address, 1, 'nft2-col2')
+
+            // Check Supply (Collection, NFTs)
+            expect(await kushNFT.getTotalSupplyNFT()).to.equal(4)
+            expect(await kushNFT.getTotalSupplyCollection()).to.equal(2)
+
+            // Get Information (Collection, NFTs)
+            expect((await kushNFT.getNFT(1))[1]).to.equal("nft2-col1")
+            expect((await kushNFT.getCollectionInfo(0))[1]).to.equal("col1")
+
+            // Check if nft is id in collection
+            expect(Number((await kushNFT.getCollectionIndexs("1"))[0])).to.equal(2)
+            expect(Number((await kushNFT.getCollectionIndexs("1"))[1])).to.equal(3)
+
+        })
+    });
+
 });
