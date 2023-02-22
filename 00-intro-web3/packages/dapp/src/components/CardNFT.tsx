@@ -1,6 +1,6 @@
-import { Box, Button, Container, Flex, Heading, Highlight, Stack, Text, useColorModeValue, VStack } from "@chakra-ui/react"
+import { Box, Button, Container, Link, Flex, Heading, Highlight, Stack, Text, useColorModeValue, VStack } from "@chakra-ui/react"
 import { ethers } from "ethers";
-import { Link, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import { config } from "../config";
@@ -37,35 +37,45 @@ export default function CardNFT(props: any) {
 
     return (
         <Box p='4' w="full">
-            <Flex
-                position="relative"
-                minH="250px"
-                borderRadius="7"
-                backgroundImage={
-                    'url(https://images.unsplash.com/photo-1600267175161-cfaa711b4a81?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80)'
-                }
-                backgroundSize={'cover'}
-                backgroundPosition={'center center'}>
-                <VStack
-                    borderRadius="7"
-                    justify={'center'}
-                    bgGradient={'linear(to-r, blackAlpha.600, transparent)'}>
 
-                    {NFT && (
-                        <Stack maxW={'2xl'} align={'flex-start'} spacing={6} p="3">
-                            <Box textAlign="left">
-                                <Text
-                                    color={'white'}
-                                    fontWeight={700}
-                                    lineHeight={1.2}
-                                    fontSize={'xl'}>
-                                     {NFT.id} :: {NFT.title}
-                                </Text>
-                            </Box>
-                        </Stack>
-                    )}
-                </VStack>
-            </Flex>
+            {NFT && (
+
+                <Link
+                    p={2}
+                    href={`#/nft/${NFT.id}`}
+                    fontSize={'md'}
+                    fontWeight={500}
+                    _hover={{ textDecoration: 'none' }}
+                    color={'primary'}>
+                    <Flex
+                        position="relative"
+                        minH="250px"
+                        borderRadius="7"
+                        backgroundImage={
+                            'url(https://images.unsplash.com/photo-1600267175161-cfaa711b4a81?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80)'
+                        }
+                        backgroundSize={'cover'}
+                        backgroundPosition={'center center'}>
+                        <VStack
+                            borderRadius="7"
+                            justify={'center'}
+                            bgGradient={'linear(to-r, blackAlpha.600, transparent)'}>
+
+                            <Stack maxW={'2xl'} align={'flex-start'} spacing={6} p="3">
+                                <Box textAlign="left">
+                                    <Text
+                                        color={'white'}
+                                        fontWeight={700}
+                                        lineHeight={1.2}
+                                        fontSize={'xl'}>
+                                        {NFT.id} :: {NFT.title}
+                                    </Text>
+                                </Box>
+                            </Stack>
+                        </VStack>
+                    </Flex>
+                </Link>
+            )}
         </Box>
     )
 }
