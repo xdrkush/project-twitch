@@ -6,50 +6,55 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract KushNFT is ERC721 {
     using Counters for Counters.Counter;
-    Counters.Counter private totalSupplyNFT; // total NFTs
-    Counters.Counter private totalSupplyCollection; // total Collections
-    uint256 totalConsumers; // total Consumers
+    Counters.Counter private totalSupplyNFTs; // total NFTs
+    Counters.Counter private totalSupplyCertifs; // total Certifs
+    Counters.Counter private totalSupplyCollections; // total Collections
+    Counters.Counter private totalConsumers; // total Consumers
 
-    struct NFTInfo {
+    // NFT (Cours)
+    struct NFTCour {
         uint256 id;
         string title;
         string uriIMG;
         address author;
-        uint256 total;
+        uint256 price;
     }
 
-    struct USERInfo {
+    // NFT (Cours)
+    struct NFTCertif {
+        uint256 id;
+        string title;
+        string uriIMG;
+        address author;
+    }
+
+    // NFT (User)
+    struct NFTUser {
         uint256 id;
         string username;
-        string uriIMG;
+        string img;
         address addr;
         uint256 totalNFTs;
-        mapping(uint256 => uint256) nfts; // [ address: bool,  ]
+        mapping(uint256 => bool) nfts; // [ address: bool,  ]
+        mapping(uint256 => bool) certifs; // [ address: bool,  ]
     }
 
-    struct CollectionInfo {
+    // NFT (Collection)
+    struct NFTCollection {
         uint256 id;
         string title;
         address author;
         string uriIMG;
         uint256 totalSupply;
         uint256 totalConsumers;
+        mapping(uint256 => uint256) tokenIndexs; 
+        mapping(address => mapping(bool => uint256)) consumers;
     }
 
-    struct NFTInfoCollection {
-        uint256 id;
-        string title;
-        address author;
-        string uriIMG;
-        uint256 totalSupply;
-        uint256 totalConsumers;
-        mapping(uint256 => uint256) tokenIndexs; // [ id1, id2, ... ]
-        mapping(address => mapping(bool => uint256)) consumers; // [ address: [ bool: nft_id ], ... ]
-    }
-
-    mapping(uint256 => NFTInfo) public NFTInfos;
-    mapping(uint256 => NFTInfoCollection) public NFTInfosCollections;
-    mapping(address => uint256) consumers; // [ address: nft_id, address: nft_id, ... ]
+    mapping(uint256 => NFTCour) public NFTCours;
+    mapping(uint256 => NFTCertif) public NFTCertifs;
+    mapping(uint256 => NFTCollection) public NFTCollections;
+    mapping(address => NFTUser) public NFTUsers;
 
     constructor(
         string memory name,
@@ -57,12 +62,17 @@ contract KushNFT is ERC721 {
     ) ERC721(name, symbol) {}
 
     // Total Supply
-    function getTotalSupplyNFT() public view returns (uint256) {
-        return totalSupplyNFT._value;
+    function getTotalSupplyNFTs() public view returns (uint256) {
+        return totalSupplyNFTs._value;
     }
-
-    function getTotalSupplyCollection() public view returns (uint256) {
-        return totalSupplyCollection._value;
+    function getTotalSupplyCollections() public view returns (uint256) {
+        return totalSupplyCollections._value;
+    }
+    function getTotalConsumers() public view returns (uint256) {
+        return totalConsumers._value;
+    }
+    function getTotalCertifs() public view returns (uint256) {
+        return totalConsumers._value;
     }
 
     // Manage Collection
