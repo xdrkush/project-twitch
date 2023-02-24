@@ -109,6 +109,16 @@ export const KushNFTABI = `[
         "internalType": "string",
         "name": "title",
         "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "uriIMG",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "author",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -138,6 +148,11 @@ export const KushNFTABI = `[
         "internalType": "address",
         "name": "author",
         "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "uriIMG",
+        "type": "string"
       },
       {
         "internalType": "uint256",
@@ -190,6 +205,11 @@ export const KushNFTABI = `[
       {
         "internalType": "string",
         "name": "_title",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_uriIMG",
         "type": "string"
       }
     ],
@@ -262,9 +282,32 @@ export const KushNFTABI = `[
         "type": "address"
       },
       {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      },
+      {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getCollectionsIDs",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
       }
     ],
     "stateMutability": "view",
@@ -281,21 +324,24 @@ export const KushNFTABI = `[
     "name": "getNFT",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "id",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "title",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct KushNFT.NFTInfo",
+        "internalType": "uint256",
         "name": "",
-        "type": "tuple"
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -367,6 +413,11 @@ export const KushNFTABI = `[
         "internalType": "string",
         "name": "_title",
         "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_uriIMG",
+        "type": "string"
       }
     ],
     "name": "mint",
@@ -410,6 +461,32 @@ export const KushNFTABI = `[
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_collection_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "registerConsumerToCollection",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_nft_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "registerConsumerToNFT",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

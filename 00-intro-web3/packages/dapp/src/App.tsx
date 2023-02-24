@@ -11,6 +11,8 @@ import { KushTokenPage } from "./pages/KushToken";
 import { KushFaucetPage } from "./pages/KushFaucet";
 import { KushNFTPage } from "./pages/KushNFT";
 import { KushNFTIDPage } from "./pages/KushNFTID";
+import { KushCollectionPage } from "./pages/KushCollection";
+import { KushCollectionIDPage } from "./pages/KushCollectionID";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
 // Router
@@ -35,6 +37,12 @@ export const App = () => (
       <Route path="/nft" element={<MainLayout />} >
         <Route index element={<KushNFTPage />} />
         <Route path=":id" element={<KushNFTIDPage />} />
+      </Route>
+
+      {/* /collection */}
+      <Route path="/collection" element={<MainLayout />} >
+        <Route index element={<KushCollectionPage />} />
+        <Route path=":id" element={<KushCollectionIDPage />} />
       </Route>
       
       {/* 404 Not Found - * */}

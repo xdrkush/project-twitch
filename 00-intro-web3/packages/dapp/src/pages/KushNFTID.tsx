@@ -18,7 +18,7 @@ export const KushNFTIDPage = () => {
     const KushNFT = new ethers.Contract(config.nft, KushNFTABI, provider)
     const kushNFT = KushNFT.connect(provider)
 
-    type C = { id: number, title: string };
+    type C = { id: number, title: string, uriIMG: string };
 
     const [NFT, setNFT] = useState<C>()
 
@@ -26,7 +26,7 @@ export const KushNFTIDPage = () => {
         console.log('getNFT', id)
         const col = await kushNFT.getNFT(id)
         console.log('getNFT 2', col)
-        setNFT({ id: Number(col[0]), title: String(col[1]) })
+        setNFT({ id: Number(col[0]), title: String(col[1]), uriIMG: String(col[2]) })
     }
 
     useEffect(() => {
@@ -37,21 +37,21 @@ export const KushNFTIDPage = () => {
 
     return (
         <Box p='4' w="full">
-            <Flex
-                position="relative"
-                minH="250px"
-                borderRadius="7"
-                backgroundImage={
-                    'url(https://images.unsplash.com/photo-1600267175161-cfaa711b4a81?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80)'
-                }
-                backgroundSize={'cover'}
-                backgroundPosition={'center center'}>
-                <VStack
+            {NFT && (
+                <Flex
+                    position="relative"
+                    minH="250px"
                     borderRadius="7"
-                    justify={'center'}
-                    bgGradient={'linear(to-r, blackAlpha.600, transparent)'}>
+                    backgroundImage={
+                        `url(${NFT.uriIMG})`
+                    }
+                    backgroundSize={'cover'}
+                    backgroundPosition={'center center'}>
+                    <VStack
+                        borderRadius="7"
+                        justify={'center'}
+                        bgGradient={'linear(to-r, blackAlpha.600, transparent)'}>
 
-                    {NFT && (
                         <Stack maxW={'2xl'} align={'flex-start'} spacing={6} p="3">
                             <Box textAlign="left">
                                 <Text
@@ -59,13 +59,13 @@ export const KushNFTIDPage = () => {
                                     fontWeight={700}
                                     lineHeight={1.2}
                                     fontSize={'xl'}>
-                                     {NFT.id} :: {NFT.title}
+                                    {NFT.id} :: {NFT.title}
                                 </Text>
                             </Box>
                         </Stack>
-                    )}
-                </VStack>
-            </Flex>
+                    </VStack>
+                </Flex>
+            )}
         </Box>
     )
 }

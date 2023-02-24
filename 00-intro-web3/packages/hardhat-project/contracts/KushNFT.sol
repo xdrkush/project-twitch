@@ -8,33 +8,55 @@ contract KushNFT is ERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private totalSupplyNFT; // total NFTs
     Counters.Counter private totalSupplyCollection; // total Collections
+    uint256 totalConsumers; // total Consumers
 
     struct NFTInfo {
         uint256 id;
         string title;
-        // Add any other information that you need for your NFTs
+        string uriIMG;
+        address author;
+        uint256 total;
+    }
+
+    struct USERInfo {
+        uint256 id;
+        string username;
+        string uriIMG;
+        address addr;
+        uint256 totalNFTs;
+        mapping(uint256 => uint256) nfts; // [ address: bool,  ]
     }
 
     struct CollectionInfo {
         uint256 id;
         string title;
         address author;
+        string uriIMG;
         uint256 totalSupply;
+        uint256 totalConsumers;
     }
 
     struct NFTInfoCollection {
         uint256 id;
         string title;
         address author;
+        string uriIMG;
         uint256 totalSupply;
-        mapping(uint256 => uint256) tokenIndexs;
+        uint256 totalConsumers;
+        mapping(uint256 => uint256) tokenIndexs; // [ id1, id2, ... ]
+        mapping(address => mapping(bool => uint256)) consumers; // [ address: [ bool: nft_id ], ... ]
     }
 
     mapping(uint256 => NFTInfo) public NFTInfos;
     mapping(uint256 => NFTInfoCollection) public NFTInfosCollections;
+    mapping(address => uint256) consumers; // [ address: nft_id, address: nft_id, ... ]
 
-    constructor( string memory name, string memory symbol ) ERC721(name, symbol) {}
+    constructor(
+        string memory name,
+        string memory symbol
+    ) ERC721(name, symbol) {}
 
+    // Total Supply
     function getTotalSupplyNFT() public view returns (uint256) {
         return totalSupplyNFT._value;
     }
@@ -43,30 +65,71 @@ contract KushNFT is ERC721 {
         return totalSupplyCollection._value;
     }
 
-    function createCollection(string memory _title) public {
+    // Manage Collection
+    function createCollection(
+        string memory _title,
+        string memory _uriIMG
+    ) public {
         uint256 id = totalSupplyCollection.current();
         totalSupplyCollection.increment();
 
         NFTInfosCollections[id].id = id;
         NFTInfosCollections[id].title = _title;
+        NFTInfosCollections[id].uriIMG = _uriIMG;
         NFTInfosCollections[id].author = msg.sender;
     }
 
-    function getCollectionInfo( uint256 id) public view returns (uint256, string memory, address, uint256) {
-        CollectionInfo memory col = CollectionInfo({
-            id: NFTInfosCollections[id].id,
-            title: NFTInfosCollections[id].title,
-            author: NFTInfosCollections[id].author,
-            totalSupply: NFTInfosCollections[id].totalSupply
-        });
+    function getCollectionsIDs() public view returns (uint256[] memory) {
+        uint256[] memory values = new uint256[](
+            totalSupplyCollection.current()
+        );
 
-        return (col.id, col.title, col.author, col.totalSupply);
+        for (uint256 i = 0; i < totalSupplyCollection.current(); i++) {
+            uint256 id = NFTInfosCollections[i].id;
+            values[i] = id;
+        }
+        return (values);
     }
 
-    function getCollectionIndexs(uint256 _collection_id) public view returns (uint256[] memory) {
-        NFTInfoCollection storage collection = NFTInfosCollections[_collection_id];
+    function getCollectionInfo(
+        uint256 id
+    )
+        public
+        view
+        returns (
+            uint256,
+            string memory,
+            address,
+            string memory,
+            uint256,
+            uint256[] memory
+        )
+    {
+        // Info
+        uint256 collection_id = NFTInfosCollections[id].id;
+        string memory title = NFTInfosCollections[id].title;
+        address author = NFTInfosCollections[id].author;
+        string memory uriIMG = NFTInfosCollections[id].uriIMG;
+        uint256 totalSupply = NFTInfosCollections[id].totalSupply;
+
+        // make array for ids nft in collection
+        uint256[] memory values = new uint256[](totalSupply);
+        for (uint256 i = 0; i < totalSupply; i++) {
+            uint256 nft_id = NFTInfosCollections[collection_id].tokenIndexs[i];
+            values[i] = nft_id;
+        }
+
+        return (id, title, author, uriIMG, totalSupply, values);
+    }
+
+    function getCollectionIndexs(
+        uint256 _collection_id
+    ) public view returns (uint256[] memory) {
+        NFTInfoCollection storage collection = NFTInfosCollections[
+            _collection_id
+        ];
         uint256[] memory values = new uint256[](collection.totalSupply);
-        
+
         for (uint256 i = 0; i < collection.totalSupply; i++) {
             uint256 id = collection.tokenIndexs[i];
             values[i] = id;
@@ -74,11 +137,87 @@ contract KushNFT is ERC721 {
         return (values);
     }
 
-    function getNFT(uint256 _id) public view returns (NFTInfo memory) {
-        return NFTInfos[_id];
-    }
+    // function getCollectionConsumers(
+    //     uint256 _collection_id
+    // ) public view returns (address[] memory) {
+    //     NFTInfoCollection storage collection = NFTInfosCollections[
+    //         _collection_id
+    //     ];
+    //     address[] memory values = new address[](collection.totalConsumers);
 
-    function mint(address _to,uint256 _collection_id,string memory _title) public returns (uint256) {
+    //     for (uint256 i = 0; i < collection.totalConsumers; i++) {
+    //         address addr = collection.consumers[i];
+    //         values[i] = addr;
+    //     }
+
+    //     return (values);
+    // }
+
+    // function registerConsumerToCollection(
+    //     uint256 _collection_id
+    // ) public {
+    //     // NFTInfoCollection storage collection = NFTInfosCollections[
+    //     //     _collection_id
+    //     // ];
+    //     // uint256 nft_id =  collection.tokenIndexs[0];
+
+    //     // On l'ajoute dans la collection
+    //     uint256 idConsumer = NFTInfosCollections[_collection_id].totalConsumers;
+    //     uint256 countNFT = 0;
+    //     NFTInfosCollections[_collection_id].consumers[msg.sender] = NFTInfosCollections[_collection_id].tokenIndexs[countNFT];
+    //     NFTInfosCollections[_collection_id].totalConsumers += 1;
+
+    //     // Et on met le consumer msg.sender dans le premier nft de la list tokenIndexs
+    //     // registerConsumerToNFT(nft_id);
+    //     // return nft_id;
+    // }
+
+    // Manage NFT
+    // function getNFT(
+    //     uint256 _id
+    // )
+    //     public
+    //     view
+    //     returns (uint256, string memory, string memory, address, address[] memory, bool[] memory)
+    // {
+    //     // require(
+    //     //     NFTInfos[_id].consumers[msg.sender] == msg.sender,
+    //     //     "Vous etes pas inscrit pour ce nft"
+    //     // );
+
+    //     NFTInfo storage nft = NFTInfos[_id];
+
+    //     address[] memory keys = new address[](nft.totalConsumers);
+    //     bool[] memory values = new bool[](nft.totalConsumers);
+
+    //     for (uint256 i = 0; i < nft.totalConsumers; i++) {
+    //         bool addr = nft.consumers[msg.sender];
+    //         address addr1 = nft.consumers[msg.sender];
+    //         keys[i] = addr1;
+    //         values[i] = addr;
+    //     }
+
+    //     return (
+    //         NFTInfos[_id].id,
+    //         NFTInfos[_id].title,
+    //         NFTInfos[_id].uriIMG,
+    //         NFTInfos[_id].author,
+    //         keys,
+    //         values
+    //     );
+    // }
+
+    // function registerConsumerToNFT(uint256 _nft_id) public {
+    //     NFTInfos[_nft_id].consumers[msg.sender] = true;
+    // }
+
+    // Mint
+    function mint(
+        address _to,
+        uint256 _collection_id,
+        string memory _title,
+        string memory _uriIMG
+    ) public returns (uint256) {
         if (NFTInfosCollections[_collection_id].id != _collection_id) {
             revert("_collection_id is invalid !");
         }
@@ -91,10 +230,13 @@ contract KushNFT is ERC721 {
             "MyNFTContract: total supply overflow"
         );
 
-        NFTInfos[tokenid] = NFTInfo(tokenid, _title);
+        NFTInfos[tokenid].id = tokenid;
+        NFTInfos[tokenid].title = _title;
+        NFTInfos[tokenid].uriIMG = _uriIMG;
+        NFTInfos[tokenid].author = msg.sender;
 
         uint256 index = NFTInfosCollections[_collection_id].totalSupply;
-        
+
         NFTInfosCollections[_collection_id].totalSupply += 1;
         NFTInfosCollections[_collection_id].tokenIndexs[index] = tokenid;
 

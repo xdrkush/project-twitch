@@ -1,32 +1,34 @@
-import { Box, Button, Container, Link, Flex, Heading, Highlight, Stack, Text, useColorModeValue, VStack } from "@chakra-ui/react"
+import { Box, Button, Container, Flex, Heading, Highlight, Stack, Text, useColorModeValue, VStack } from "@chakra-ui/react"
 import { ethers } from "ethers";
-import { useOutletContext } from "react-router-dom";
+import { Link, useOutletContext, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import { config } from "../config";
 import { KushNFTABI } from "../config/KushNFTABI";
 import { features } from "process";
+import ListCollection from "../components/ListCollection";
 
 // 
 // !!!  En cours !!!
 // 
 
-export default function CardNFT(props: any) {
-    const { nft_id, collection_id } = props
+export const KushCollectionIDPage = () => {
+    const { id } = useParams()
     const { provider, siteConnected, isOwner, account, signer }: any = useOutletContext()
 
     const KushNFT = new ethers.Contract(config.nft, KushNFTABI, provider)
     const kushNFT = KushNFT.connect(provider)
 
-    type C = { id: number, title: string, uriIMG: string };
+    type C = { id: number, title: string, author: string, uriIMG: string, totalSupply: number, tokenIndexs: any[] };
 
-    const [NFT, setNFT] = useState<C>()
+    const [collection, setCollection] = useState<C>()
 
     const loadContract = async () => {
-        console.log('getNFT', collection_id, nft_id)
-        const col = await kushNFT.getNFT(nft_id)
+        console.log('getNFT', id)
+        const col = await kushNFT.getCollectionInfo(id)
         console.log('getNFT 2', col)
-        setNFT({ id: Number(col[0]), title: String(col[1]), uriIMG: String(col[2]) })
+        setCollection({ id: Number(col[0]), title: String(col[1]), author: String(col[2]), uriIMG: String(col[3]), totalSupply: Number(col[4]), tokenIndexs: Array(...col[5]) })
+
     }
 
     useEffect(() => {
@@ -36,23 +38,15 @@ export default function CardNFT(props: any) {
     }, [])
 
     return (
-        <Box p='4' w="full">
-
-            {NFT && (
-
-                <Link
-                    p={2}
-                    href={`#/nft/${NFT.id}`}
-                    fontSize={'md'}
-                    fontWeight={500}
-                    _hover={{ textDecoration: 'none' }}
-                    color={'primary'}>
+        <Box>
+            <Box p='4' w="full">
+                {collection && (
                     <Flex
                         position="relative"
                         minH="250px"
                         borderRadius="7"
                         backgroundImage={
-                            `url(${ NFT.uriIMG })`
+                            `url(${collection.uriIMG})`
                         }
                         backgroundSize={'cover'}
                         backgroundPosition={'center center'}>
@@ -68,14 +62,19 @@ export default function CardNFT(props: any) {
                                         fontWeight={700}
                                         lineHeight={1.2}
                                         fontSize={'xl'}>
-                                        {NFT.id} :: {NFT.title}
+                                        {collection.id} :: {collection.title}
                                     </Text>
                                 </Box>
                             </Stack>
                         </VStack>
                     </Flex>
-                </Link>
+                )}
+            </Box>
+
+            {collection && (
+                <ListCollection collection_id={collection.id} />
             )}
+
         </Box>
     )
 }
