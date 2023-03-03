@@ -1,12 +1,12 @@
-import { Box, Button, Container, Flex, Heading, Highlight, Stack, Text, useColorModeValue, VStack } from "@chakra-ui/react"
+import { Box, Flex, Stack, Text, VStack } from "@chakra-ui/react"
 import { ethers } from "ethers";
-import { Link, useOutletContext, useParams } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import { config } from "../config";
 import { KushNFTABI } from "../config/KushNFTABI";
-import { features } from "process";
 import ListCollection from "../components/ListCollection";
+import { NotConnected } from "../components/NotConnected";
 
 // 
 // !!!  En cours !!!
@@ -19,28 +19,29 @@ export const KushCollectionIDPage = () => {
     const KushNFT = new ethers.Contract(config.nft, KushNFTABI, provider)
     const kushNFT = KushNFT.connect(provider)
 
-    type C = { id: number, title: string, author: string, uriIMG: string, totalSupply: number, tokenIndexs: any[] };
+    type C = { id: number, title: string, author: string, uriIMG: string, totalSupply: number };
 
     const [collection, setCollection] = useState<C>()
 
     const loadContract = async () => {
         console.log('getNFT', id)
-        const col = await kushNFT.getCollectionInfo(id)
-        console.log('getNFT 2', col)
-        setCollection({ id: Number(col[0]), title: String(col[1]), author: String(col[2]), uriIMG: String(col[3]), totalSupply: Number(col[4]), tokenIndexs: Array(...col[5]) })
-
+        const [idCol, title, author, img, supply] = await kushNFT.getCollectionInfo(id)
+        setCollection({ id: Number(idCol), title: String(title), author: String(author), uriIMG: String(img), totalSupply: Number(supply) })
     }
 
     useEffect(() => {
         if (!window.ethereum)
             return
-        loadContract()
+
+        return () => {
+            loadContract()
+        }
     }, [])
 
     return (
         <Box>
             <Box p='4' w="full">
-                {collection && (
+                {siteConnected ? collection && (
                     <Flex
                         position="relative"
                         minH="250px"
@@ -68,11 +69,13 @@ export const KushCollectionIDPage = () => {
                             </Stack>
                         </VStack>
                     </Flex>
+                ) : (
+                    <NotConnected text="Vous n'êtes pas connecté a metamask, ou au contrat NFT" />
                 )}
             </Box>
 
             {collection && (
-                <ListCollection collection_id={collection.id} />
+                <ListCollection collection_id={Number(collection.id)} />
             )}
 
         </Box>

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { Box, Button, FormControl, FormLabel, Input, Stack, Text } from "@chakra-ui/react"
 import { useOutletContext } from "react-router-dom"
+import { NotConnected } from './NotConnected';
 
 export const KushFaucetInfo = () => {
     const { provider, siteConnected, isOwner, account, signer }: any = useOutletContext()
@@ -87,78 +88,80 @@ export const KushFaucetInfo = () => {
 
     return (
         <Box>
-            <Text> Info Faucet </Text>
+            {siteConnected ? (
+                <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
 
-            <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
+                    <Text> Info Faucet </Text>
+                    <Box
+                        rounded={'lg'}
+                        boxShadow={'lg'}
+                        p={8}>
+                        <Stack spacing={4}>
+                            <Stack spacing={10}>
 
-                <Box
-                    rounded={'lg'}
-                    boxShadow={'lg'}
-                    p={8}>
-                    <Stack spacing={4}>
-                        <Stack spacing={10}>
+                                <Text fontSize={'lg'} color={'gray.600'}>
+                                    BalanceFaucet: {Number(balanceFaucet) / (10 ** 18)}
+                                </Text>
+                                <Text fontSize={'lg'} color={'gray.600'}>
+                                    Address (faucet): {addressFaucet}
+                                </Text>
 
-                            <Text fontSize={'lg'} color={'gray.600'}>
-                                BalanceFaucet: {Number(balanceFaucet) / (10 ** 18)}
-                            </Text>
-                            <Text fontSize={'lg'} color={'gray.600'}>
-                                Address (faucet): {addressFaucet}
-                            </Text>
+                                {isOwner === true && (
+                                    <Box>
 
-                            {isOwner === true && (
-                                <Box>
+                                        <FormControl>
+                                            <FormLabel>Authorise address to Allowance</FormLabel>
+                                            <Input type="text" onChange={(e) => setAddressToAllowance(e.target.value)} />
+                                        </FormControl>
+                                        <Button
+                                            bg={'primary.500'}
+                                            color={'white'}
+                                            onClick={authAllowance}
+                                            _hover={{
+                                                bg: 'primary.900',
+                                            }}>
+                                            Authorize Allowance
+                                        </Button>
+                                        <Button
+                                            bg={'primary.500'}
+                                            color={'white'}
+                                            onClick={authApprove}
+                                            _hover={{
+                                                bg: 'primary.900',
+                                            }}>
+                                            Approve
+                                        </Button>
+                                    </Box>
+                                )}
 
-                                    <FormControl>
-                                        <FormLabel>Authorise address to Allowance</FormLabel>
-                                        <Input type="text" onChange={(e) => setAddressToAllowance(e.target.value)} />
-                                    </FormControl>
-                                    <Button
-                                        bg={'primary.500'}
-                                        color={'white'}
-                                        onClick={authAllowance}
-                                        _hover={{
-                                            bg: 'primary.900',
-                                        }}>
-                                        Authorize Allowance
-                                    </Button>
-                                    <Button
-                                        bg={'primary.500'}
-                                        color={'white'}
-                                        onClick={authApprove}
-                                        _hover={{
-                                            bg: 'primary.900',
-                                        }}>
-                                        Approve
-                                    </Button>
-                                </Box>
-                            )}
-
-                            <FormControl id="password">
-                                <FormLabel>DEPOSIT TO FAUCET Amount / Montant (en Token)</FormLabel>
-                                <Input type="number" onChange={(e) => setAmountDeposit(e.target.value)} />
-                            </FormControl>
-                            <Button
-                                bg={'primary.500'}
-                                color={'white'}
-                                onClick={depositToFaucet}
-                                _hover={{
-                                    bg: 'primary.900',
-                                }}>
-                                DEPOSIT
-                            </Button>
-                            <Button
-                                bg={'primary.500'}
-                                color={'white'}
-                                onClick={claimFaucet}
-                                _hover={{
-                                    bg: 'primary.900',
-                                }}>
-                                claim token
-                            </Button>
+                                <FormControl id="password">
+                                    <FormLabel>DEPOSIT TO FAUCET Amount / Montant (en Token)</FormLabel>
+                                    <Input type="number" onChange={(e) => setAmountDeposit(e.target.value)} />
+                                </FormControl>
+                                <Button
+                                    bg={'primary.500'}
+                                    color={'white'}
+                                    onClick={depositToFaucet}
+                                    _hover={{
+                                        bg: 'primary.900',
+                                    }}>
+                                    DEPOSIT
+                                </Button>
+                                <Button
+                                    bg={'primary.500'}
+                                    color={'white'}
+                                    onClick={claimFaucet}
+                                    _hover={{
+                                        bg: 'primary.900',
+                                    }}>
+                                    claim token
+                                </Button>
+                            </Stack>
                         </Stack>
-                    </Stack>
-                </Box>
-            </Stack>
+                    </Box>
+                </Stack>) : (
+                <NotConnected text="Vous n'êtes pas connecté à metamask, ou au contrat au du token ou du faucet." />
+            )}
         </Box>
     )
 }

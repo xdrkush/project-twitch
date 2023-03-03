@@ -1,38 +1,37 @@
 // Importation des bibliothèques nécessaires
+const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
+
 const { expect } = require("chai");
 
 // Définition des tests
 describe("KushFaucet", () => {
-  let kushFaucet;  //: KushFaucet;
-  let kushToken;  //: KushFaucet;
-  let owner;  //: Contract;
-  let addr1;  //: Contract;
-  let addr2;  //: Contract;
-
-  beforeEach(async () => {
+  async function deployTokenFixture() {
     // Déploiement du contrat ERC20
     const supply = hre.ethers.utils.parseEther("21000000");
     const KushToken = await ethers.getContractFactory("KushToken");
-    kushToken = await KushToken.deploy(supply);
+    const kushToken = await KushToken.deploy(supply);
     await kushToken.deployed();
 
     // Déploiement Faucet
     const KushFaucet = await ethers.getContractFactory("KushFaucet");
-    kushFaucet = await KushFaucet.deploy(kushToken.address);
+    const kushFaucet = await KushFaucet.deploy(kushToken.address);
     await kushFaucet.deployed();
 
     // Obtention des comptes pour les tests
-    [owner, addr1, addr2] = await ethers.getSigners();
-  });
+    const [owner, addr1, addr2] = await ethers.getSigners();
 
-  describe("Name, Symbol, BalanceOf", () => {
-    it("should have correct name", async () => {
+    return { kushToken, kushFaucet, owner, addr1, addr2 };
+
+  };
+
+  describe("CHECK contract", () => {
+    it("Name, Symbol, BalanceOf", async () => {
+      const { kushToken, kushFaucet } = await loadFixture(deployTokenFixture);
+
       expect(await kushToken.name()).to.equal("KushToken");
-    });
-    it("should have correct symbol", async () => {
+
       expect(await kushToken.symbol()).to.equal("KUSH");
-    });
-    it("should have correct balanceOf", async () => {
+
       expect(Number(await kushToken.balanceOf(kushFaucet.address))).to.equal(Number(0));
     });
 
@@ -40,6 +39,7 @@ describe("KushFaucet", () => {
 
   describe('Deposit By Owner', () => {
     it("should have correct allowance & approve", async () => {
+      const { kushToken, kushFaucet, owner } = await loadFixture(deployTokenFixture);
       // On check et effectue l'allowance
       expect(await kushToken.allowance(owner.address, kushFaucet.address)).to.equal(0)
       await kushToken.approve(kushFaucet.address, 1000000)
@@ -63,6 +63,7 @@ describe("KushFaucet", () => {
     const _amount = ethers.utils.parseEther('1')
 
     it("should have correct allowance for deposit by NO-Owner", async () => {
+      const { kushToken, kushFaucet, addr1 } = await loadFixture(deployTokenFixture);
       // On prépare une transaction de notre owner vers addr1
       await kushToken.transfer(addr1.address, ethers.utils.parseEther('10'))
       // On check que les token sont arriver
@@ -91,6 +92,8 @@ describe("KushFaucet", () => {
 
   describe('Claim By NO-Owner', () => {
     it("should have correct claim for NO-Owner", async () => {
+      const { kushToken, kushFaucet, owner, addr1 } = await loadFixture(deployTokenFixture);
+
       // On depose avec le owner
       await kushToken.allowance(owner.address, kushFaucet.address)
       await kushToken.approve(kushFaucet.address, ethers.utils.parseEther('10'))

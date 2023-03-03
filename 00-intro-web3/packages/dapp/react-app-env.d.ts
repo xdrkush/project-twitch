@@ -14,9 +14,7 @@ import { VoidSigner } from "ethers"
 // --- provider ---
 export type Provider = null | Web3Provider | FallbackProvider | BaseProvider
 
-// declare global {
-interface Window {
-    ethereum?: any;
-}
-// }
 
+interface Window {
+    ethereum?: any
+}

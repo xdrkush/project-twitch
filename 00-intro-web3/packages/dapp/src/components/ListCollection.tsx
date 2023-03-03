@@ -13,40 +13,55 @@ export default function ListCollection(props: any) {
     const { collection_id, indexCollection } = props
     const { provider, siteConnected, isOwner, account, signer }: any = useOutletContext()
 
+    // console.log('ListCollection', provider)
+
     const KushNFT = new ethers.Contract(config.nft, KushNFTABI, provider)
     const kushNFT = KushNFT.connect(provider)
 
-    type C = { id: number, title: string, author: string, uriIMG: string, totalSupply: number, tokenIndexs: any[] };
+    type C = { id: number, title: string, author: string, uriIMG: string, totalSupply: number, totalConsumers: number };
+    type L = {};
 
     const [collection, setCollection] = useState<C>()
+    const [listNFTs, setListNFTs] = useState([])
 
-    const loadContract = async () => {
-        console.log('getCollection', (await kushNFT.getCollectionInfo(collection_id)))
-        const col = await kushNFT.getCollectionInfo(collection_id.toString())
-        setCollection({ id: Number(col[0]), title: String(col[1]), author: String(col[2]), uriIMG: String(col[3]), totalSupply: Number(col[4]), tokenIndexs: Array(...col[5]) })
-        console.log('ICICICI', collection, col)
+    async function loadContract() {
+        const [id, title, author, img, supply, totalConsumers] = await kushNFT.getCollectionInfo(Number(collection_id))
+        console.log('getCollection 22', Number(collection_id), title)
+
+        const list = await kushNFT.getCollectionIndexs(Number(collection_id))
+
+        setCollection({ id: Number(id), title: String(title), author: String(author), uriIMG: String(img), totalSupply: Number(supply), totalConsumers: Number(totalConsumers) })
+        setListNFTs(list)
+        console.log('ListCollection', provider, await kushNFT.isAuthorizedAccessCollection(collection_id))
     }
 
     useEffect(() => {
         if (!window.ethereum)
-            return
-        loadContract()
+            return;
+
+        return () => {
+            loadContract()
+        }
     }, [])
 
     const registerCollection = async () => {
-        await kushNFT.connect(provider).registerConsumerToCollection(collection?.id)
+        try {
+            await kushNFT.connect(signer).registerConsumerToCollection(collection?.id)
+        } catch (error) {
+            console.log('error', error)            
+        }
     }
 
     return (
-        <Box id="inprogress">
+        <Box>
             {collection && (
-                <>
+                <Box>
                     <Stack spacing={4} as={Container} maxW={'3xl'} textAlign={'center'}>
                         <Heading fontSize={'3xl'}>
                             {(collection.id + " :: " + collection.title)}
                         </Heading>
                         <Text color={'gray.600'} fontSize={'xl'}>
-                            totalSupply: {collection.totalSupply} / By: {collection.author}
+                            totalSupply: {collection.totalSupply} / totalConsumers: {collection.totalConsumers} / By: {collection.author}
                         </Text>
                     </Stack>
 
@@ -54,6 +69,8 @@ export default function ListCollection(props: any) {
                         <Flex display={{ md: "flex" }} justify="center">
                             {indexCollection && (
                                 <Box p='4' w="full">
+
+                                    {collection.id}
                                     <Link
                                         p={2}
                                         href={`#/collection/${collection.id}`}
@@ -91,9 +108,20 @@ export default function ListCollection(props: any) {
                                     </Link>
                                 </Box>
                             )}
-                            {collection.tokenIndexs.length > 0 ?
-                                collection.tokenIndexs.map((el) => (
-                                    <CardNFT key={Number(el)} nft_id={String(el)} collection_id={collection.id} />
+
+                            <Button
+                                bg={'primary.500'}
+                                color={'white'}
+                                onClick={registerCollection}
+                                _hover={{
+                                    bg: 'primary.900',
+                                }}>
+                                S'inscrire
+                            </Button>
+
+                            {listNFTs.length > 0 ?
+                                listNFTs.map((el) => (
+                                    <CardNFT key={String(el)} nft_id={String(el)} collection_id={collection.id} />
                                 )) : (
                                     <>
                                         <Button
@@ -111,7 +139,7 @@ export default function ListCollection(props: any) {
 
                         </Flex>
                     </Container>
-                </>
+                </Box>
             )}
         </Box >
     )

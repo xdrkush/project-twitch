@@ -12,7 +12,8 @@
     "help": "npm run help --workspace=hardhat-project",
     "test": "npm run test --workspace=hardhat-project",
     "blk": "npm run blk --workspace=hardhat-project",
-    "deploy": "npm run deploy --workspace=hardhat-project"
+    "deploy": "npm run deploy --workspace=hardhat-project",
+    "clean": "npm run clean --workspace=hardhat-project"
   },
   "engines": {
     "node": ">=18.0.0"

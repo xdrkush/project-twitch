@@ -1,4 +1,4 @@
-import { Outlet, useOutletContext } from "react-router-dom"
+import { Outlet } from "react-router-dom"
 import { ChakraProvider } from '@chakra-ui/react';
 import { theme } from "../Theme"
 import { useEffect, useState } from 'react';
@@ -13,10 +13,10 @@ import { NavbarMain } from "../components/layouts/NavbarMain"
 import { FooterMain } from "../components/layouts/FooterMain"
 
 export const MainLayout = () => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum)
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-    const KushToken = new ethers.Contract(config.token, KushABI, provider)
-    const token = KushToken.connect(provider)
+    const KushToken = new ethers.Contract(config.token, KushABI, provider);
+    const token = KushToken.connect(provider);
 
     const [balance, setBalance] = useState("");
     const [account, setAccount] = useState("");
@@ -27,17 +27,56 @@ export const MainLayout = () => {
     // Check isConnected()
     const handleInitialConnection = async (account: string) => {
         setAccount(account)
-        setSiteConnected(true);
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const balance = await provider.getBalance(account);
         const formattedBalance = ethers.utils.formatEther(balance);
-        if (formattedBalance) setBalance(formattedBalance.toString());
+        if (formattedBalance) {
+            setBalance(formattedBalance.toString());
+            setSiteConnected(true);
+        }
     };
 
     const loadContract = async (account: any) => {
         const isOwner = (await token.owner() === account)
         setIsOwner(isOwner)
     }
+
+    useEffect(() => {
+        return () => {
+            console.log('load Main Layout')
+
+            const isBrowserWalletConnected = async () => {
+                if (!window.ethereum)
+                    throw new Error("NO_ETH_BROWSER_WALLET");
+
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const accounts = await provider.listAccounts();
+                if (accounts?.length > 0) {
+                    const account = accounts[0];
+                    console.log('accounts', accounts)
+                    await handleInitialConnection(account);
+                    await loadContract(account);
+                }
+            }
+
+            try {
+                isBrowserWalletConnected();
+            } catch (err: any) {
+                setError(err.message);
+            }
+        }
+
+    }, []);
+
+    window.ethereum.on('accountsChanged', () => {
+        window.location.reload()
+    })
+    window.ethereum.on('chainChanged', () => {
+        window.location.reload()
+    })
+    window.ethereum.on('disconnect', () => {
+        window.location.reload()
+    })
 
     // Btn nav connected()
     async function handleBtnConnectSiteClick() {
@@ -59,28 +98,6 @@ export const MainLayout = () => {
             setError(err.message);
         }
     }
-
-    useEffect(() => {
-        const isBrowserWalletConnected = async () => {
-            if (!window.ethereum)
-                throw new Error("NO_ETH_BROWSER_WALLET");
-
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const accounts = await provider.listAccounts();
-            if (accounts?.length > 0) {
-                const account = accounts[0];
-                await handleInitialConnection(account);
-                await loadContract(account);
-            }
-        }
-
-        try {
-            isBrowserWalletConnected();
-        } catch (err: any) {
-            setError(err.message);
-        }
-
-    }, [provider]);
 
     return (
         <ChakraProvider theme={theme}>

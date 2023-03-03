@@ -13,6 +13,7 @@ import {
 import { useState } from 'react';
 import { ethers } from 'ethers';
 import { useOutletContext } from "react-router-dom";
+import { NotConnected } from './NotConnected';
 
 export const TxEthereum = (props: any) => {
     const { provider, siteConnected, isOwner, account, signer }: any = useOutletContext()
@@ -21,6 +22,8 @@ export const TxEthereum = (props: any) => {
     const [address, setAddress] = useState('');
     const [balance, setBalance] = useState("");
     const [txs, setTxs] = useState([]);
+
+    const color = useColorModeValue('white', 'gray.700')
 
     const startPayment = async ({ setError, handleNewTx, ether, addr }: any) => {
         try {
@@ -42,23 +45,23 @@ export const TxEthereum = (props: any) => {
     };
 
     const handleNewTx = (tx: any) => {
-      const updatedTxs: any = [...txs, tx];
-      setTxs(updatedTxs);
-      localStorage.setItem('txs', JSON.stringify(updatedTxs))
-      setBalance(
-        // @ts-ignore
-        (Number(balance) - tx.gasPrice - tx.value).toString()
-      );
+        const updatedTxs: any = [...txs, tx];
+        setTxs(updatedTxs);
+        localStorage.setItem('txs', JSON.stringify(updatedTxs))
+        setBalance(
+            // @ts-ignore
+            (Number(balance) - tx.gasPrice - tx.value).toString()
+        );
     };
 
     const handleSubmit = async (address: any, amount: any) => {
 
-      await startPayment({
-        setError,
-        handleNewTx,
-        ether: amount?.toString() || '',
-        addr: address?.toString() || '',
-      });
+        await startPayment({
+            setError,
+            handleNewTx,
+            ether: amount?.toString() || '',
+            addr: address?.toString() || '',
+        });
     };
 
     return (
@@ -66,48 +69,54 @@ export const TxEthereum = (props: any) => {
             minH={'100vh'}
             align={'center'}
             justify={'center'}
-            bg={useColorModeValue('gray.50', 'gray.800')}>
-            <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
-                <Stack align={'center'}>
-                    <Heading fontSize={'4xl'}>Transfert Ethereum</Heading>
-                    <Text fontSize={'lg'} color={'gray.600'}>
-                        Enjoy ✌️
-                    </Text>
-                    <Text fontSize={'lg'} color={'gray.600'}>
-                        To: { address }
-                    </Text>
-                    <Text fontSize={'lg'} color={'gray.600'}>
-                        Amount: { amount }
-                    </Text>
-                </Stack>
-                <Box
-                    rounded={'lg'}
-                    bg={useColorModeValue('white', 'gray.700')}
-                    boxShadow={'lg'}
-                    p={8}>
-                    <Stack spacing={4}>
-                        <FormControl id="email">
-                            <FormLabel>Address ethereum To / Destinataire</FormLabel>
-                            <Input type="email" onChange={(e) => setAddress(e.target.value)} />
-                        </FormControl>
-                        <FormControl id="password">
-                            <FormLabel>Amount / Montant</FormLabel>
-                            <Input type="number" onChange={(e) => setAmount(e.target.value)} />
-                        </FormControl>
-                        <Stack spacing={10}>
-                            <Button
-                                bg={'primary.500'}
-                                color={'white'}
-                                onClick={() => handleSubmit(address, amount)}
-                                _hover={{
-                                    bg: 'primary.900',
-                                }}>
-                                Transfert
-                            </Button>
-                        </Stack>
+            bg={color}>
+            {siteConnected ? (
+                <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
+                    <Stack align={'center'}>
+                        <Heading fontSize={'4xl'}>Transfert Ethereum</Heading>
+                        <Text fontSize={'lg'} color={'gray.600'}>
+                            Enjoy ✌️
+                        </Text>
+                        <Text fontSize={'lg'} color={'gray.600'}>
+                            To: {address}
+                        </Text>
+                        <Text fontSize={'lg'} color={'gray.600'}>
+                            Amount: {amount}
+                        </Text>
                     </Stack>
-                </Box>
-            </Stack>
+                    <Box
+                        rounded={'lg'}
+                        bg={color}
+                        boxShadow={'lg'}
+                        p={8}>
+                        <Stack spacing={4}>
+
+                            <FormControl id="email">
+                                <FormLabel>Address ethereum To / Destinataire</FormLabel>
+                                <Input type="email" onChange={(e) => setAddress(e.target.value)} />
+                            </FormControl>
+                            <FormControl id="password">
+                                <FormLabel>Amount / Montant</FormLabel>
+                                <Input type="number" onChange={(e) => setAmount(e.target.value)} />
+                            </FormControl>
+                            <Stack spacing={10}>
+                                <Button
+                                    bg={'primary.500'}
+                                    color={'white'}
+                                    onClick={() => handleSubmit(address, amount)}
+                                    _hover={{
+                                        bg: 'primary.900',
+                                    }}>
+                                    Transfert
+                                </Button>
+                            </Stack>
+
+                        </Stack>
+                    </Box>
+                </Stack>
+            ) : (
+                <NotConnected text="Vous n'êtes pas connecter à metamask"/>
+            )}
         </Flex>
     );
 }

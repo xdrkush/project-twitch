@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { config } from "../config";
 import { KushNFTABI } from "../config/KushNFTABI";
 import { features } from "process";
+import { NotConnected } from "../components/NotConnected";
 
 // 
 // !!!  En cours !!!
@@ -32,12 +33,15 @@ export const KushNFTIDPage = () => {
     useEffect(() => {
         if (!window.ethereum)
             return
-        loadContract()
+        return () => {
+
+            loadContract()
+        }
     }, [])
 
     return (
         <Box p='4' w="full">
-            {NFT && (
+            {siteConnected ? NFT && (
                 <Flex
                     position="relative"
                     minH="250px"
@@ -65,6 +69,8 @@ export const KushNFTIDPage = () => {
                         </Stack>
                     </VStack>
                 </Flex>
+            ) : (
+                <NotConnected text="Vous n'êtes pas connecter a metamask, ou vous n'y avez pas accès" />
             )}
         </Box>
     )

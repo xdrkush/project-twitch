@@ -17,6 +17,7 @@ import { KushABI } from "../config/KushABI"
 import { KushFaucetABI } from "../config/KushFaucetABI"
 import { config } from '../config';
 import { useOutletContext } from "react-router-dom";
+import { NotConnected } from './NotConnected';
 
 export const KushTokenInfo = () => {
   const { provider, siteConnected, isOwner, account, signer }: any = useOutletContext()
@@ -101,26 +102,15 @@ export const KushTokenInfo = () => {
   return (
     <Box>
 
-      {name.length <= 0 && (
-        <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
-          <Stack align={'center'}>
-            <Heading fontSize={'4xl'}>Vous n'êtes pas connecter au contrat </Heading>
-            <Text fontSize={'lg'} color={'gray.600'}>
-              Oops
-            </Text>
-          </Stack>
-        </Stack>
-      )}
-
-      {name.length >= 1 && (
+      {siteConnected ? (
         <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
           <Stack align={'center'}>
             <Heading fontSize={'4xl'}>Info {name} {symbol} </Heading>
             <Text fontSize={'lg'} color={'gray.600'}>
-              TotalSupply: {(Number(totalSupply) / (10**18) )}
+              TotalSupply: {(Number(totalSupply) / (10 ** 18))}
             </Text>
             <Text fontSize={'lg'} color={'gray.600'}>
-              Balance: {Number(balance) / (10**18)}
+              Balance: {Number(balance) / (10 ** 18)}
             </Text>
             <Text fontSize={'lg'} color={'gray.600'}>
               Address: {address}
@@ -157,6 +147,8 @@ export const KushTokenInfo = () => {
             </Stack>
           </Box>
         </Stack>
+      ) : (
+        <NotConnected text="Vous n'êtes pas connecté à metamask, ou au contrat au du token."/>
       )}
     </Box>
   );

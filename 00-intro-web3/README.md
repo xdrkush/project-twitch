@@ -24,10 +24,11 @@ Rajouter le code ci-dessous dans `packages/hardhat-project/package.json`:
     <default data>,
 
     "scripts": {
-        "help": "npx hardhat help",
-        "test": "npx hardhat test",
-        "blk": "npx hardhat node",
-        "deploy": "npx hardhat run scripts/deploy.js"
+      "help": "npx hardhat help",
+      "test": "npx hardhat test",
+      "blk": "npx hardhat node",
+      "deploy": "npx hardhat run scripts/deploy.js --network localhost",
+      "clean": "npx hardhat clean"
     }
 }
 ```

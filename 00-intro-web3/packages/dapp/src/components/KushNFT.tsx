@@ -7,16 +7,14 @@ import { KushNFTABI } from "../config/KushNFTABI";
 
 // Component
 import ListCollection from "./ListCollection";
+import { NotConnected } from "./NotConnected";
 
 export const KushNFTInfo = (props: any) => {
     const { provider, siteConnected, isOwner, account, signer }: any = useOutletContext()
-    console.log('KushNFTInfo', account)
 
     const KushNFT = new ethers.Contract(config.nft, KushNFTABI, provider)
     const kushNFT = KushNFT.connect(provider)
-    let T: any[] = []
 
-    const [listNFT, setListNFT] = useState(T)
     const [titleNFT, setTitleNFT] = useState("")
     const [uriIMGNFT, setUriIMGNFT] = useState("https://www.zupimages.net/up/23/08/tus4.jpeg")
     const [idCollectionForNFT, setIDCollectionForNFT] = useState("")
@@ -24,37 +22,28 @@ export const KushNFTInfo = (props: any) => {
     const [uriIMGCollection, setUriIMGCollection] = useState("https://www.zupimages.net/up/23/08/tus4.jpeg")
     const [supplyNFT, setSupplyNFT] = useState("")
     const [supplyCollection, setSupplyCollection] = useState("")
+    const [supplyConsumers, setSupplyConsumers] = useState("")
+    const [supplyCertifs, setSupplyCertifs] = useState("")
     const [collections, setCollections] = useState([])
 
-    const loadContract = async () => {
-        setSupplyNFT((await kushNFT.getTotalSupplyNFT()).toString())
-        setSupplyCollection((await kushNFT.getTotalSupplyCollection()).toString())
-        setCollections((await kushNFT.getCollectionsIDs()))
-        console.log('getCollection', collections, props, (await kushNFT.getCollectionsIDs()))
 
-        for (let i = 0; i < Number(supplyCollection); i++) {
-            let col = await kushNFT.getCollectionInfo(i.toString())
-
-            let obj = {
-                id: Number(col[0]),
-                title: col[1],
-                author: col[2],
-                totalSupply: Number(col[3])
-            }
-
-            setListNFT([...listNFT, obj])
-        }
+    async function loadContract() {
+        const col = await kushNFT.getCollectionsIDs()
+        setSupplyNFT((await kushNFT.getTotalSupplyNFTs()).toString())
+        setSupplyCollection((await kushNFT.getTotalSupplyCollections()).toString())
+        setSupplyCertifs((await kushNFT.getTotalCertifs()).toString())
+        setSupplyConsumers((await kushNFT.getTotalConsumers()).toString())
+        setCollections((col))
     }
 
     useEffect(() => {
         if (!window.ethereum)
-            return
-        loadContract()
-    }, [])
+            return;
 
-    useEffect(() => {
-        console.log('listNFT', listNFT)
-    }, [listNFT])
+        return () => {
+            loadContract()
+        }
+    }, [])
 
     const createCollection = async () => {
         console.log('createCollection', titleCollection)
@@ -63,7 +52,16 @@ export const KushNFTInfo = (props: any) => {
 
     const createNFT = async () => {
         console.log('createNFT', account, idCollectionForNFT, titleNFT)
-        await kushNFT.connect(signer).mint(account, idCollectionForNFT, titleNFT, uriIMGNFT)
+        await kushNFT.connect(signer).mint(idCollectionForNFT, titleNFT, uriIMGNFT)
+    }
+
+    const registerAccount = async () => {
+        console.log('registerAccount', account)
+        try {
+            await kushNFT.connect(signer).registerConsumer()
+        } catch (error) {
+            console.log('error', error)
+        }
     }
 
     return (
@@ -78,6 +76,12 @@ export const KushNFTInfo = (props: any) => {
                     supplyCollection: {supplyCollection}
                 </Text>
                 <Text fontSize={'lg'} color={'gray.600'}>
+                    totalConsumers: {supplyConsumers}
+                </Text>
+                <Text fontSize={'lg'} color={'gray.600'}>
+                    totalCertifs: {supplyCertifs}
+                </Text>
+                <Text fontSize={'lg'} color={'gray.600'}>
                     unicorn: https://www.zupimages.net/up/23/08/tus4.jpeg
                 </Text>
                 <Text fontSize={'lg'} color={'gray.600'}>
@@ -86,91 +90,111 @@ export const KushNFTInfo = (props: any) => {
                 <Text fontSize={'lg'} color={'gray.600'}>
                     css: https://www.zupimages.net/up/23/08/dise.png
                 </Text>
-
             </Box>
 
-            <Stack spacing={8} mx={'auto'} minW={'lg'} py={12} px={6}>
+            <Button
+                bg={'primary.500'}
+                color={'white'}
+                onClick={registerAccount}
+                _hover={{
+                    bg: 'primary.900',
+                }}>
+                S'inscrire son compte
+            </Button>
 
-                <Box
-                    rounded={'lg'}
-                    boxShadow={'lg'}
-                    p={8}>
-                    <Flex w={"100%"}>
-                        <Spacer />
-                        <Box>
-                            <Flex
-                                my="5"
-                                position="relative"
-                                minH="250px"
-                                borderRadius="7"
-                                backgroundImage={
-                                    `url(${uriIMGCollection})`
-                                }
-                                backgroundSize={'cover'}
-                                backgroundPosition={'center center'} />
-                            <FormControl>
-                                <FormLabel>Title</FormLabel>
-                                <Input type="text" onChange={(e) => setTitleCollection(e.target.value)} />
-                            </FormControl>
-                            <FormControl>
-                                <FormLabel>URL IMG</FormLabel>
-                                <Input type="text" onChange={(e) => setUriIMGCollection(e.target.value)} />
-                            </FormControl>
-                            <Button
-                                bg={'primary.500'}
-                                color={'white'}
-                                onClick={createCollection}
-                                _hover={{
-                                    bg: 'primary.900',
-                                }}>
-                                Create Collection
-                            </Button>
+            {siteConnected ? (
+                <Box>
+                    <Stack spacing={8} mx={'auto'} minW={'lg'} py={12} px={6}>
+
+                        <Box
+                            rounded={'lg'}
+                            boxShadow={'lg'}
+                            p={8}>
+                            <Flex w={"100%"}>
+                                <Spacer />
+                                <Box>
+                                    <Flex
+                                        my="5"
+                                        position="relative"
+                                        minH="250px"
+                                        borderRadius="7"
+                                        backgroundImage={
+                                            `url(${uriIMGCollection})`
+                                        }
+                                        backgroundSize={'cover'}
+                                        backgroundPosition={'center center'} />
+                                    <FormControl>
+                                        <FormLabel>Title</FormLabel>
+                                        <Input type="text" onChange={(e) => setTitleCollection(e.target.value)} />
+                                    </FormControl>
+                                    <FormControl>
+                                        <FormLabel>URL IMG</FormLabel>
+                                        <Input type="text" onChange={(e) => setUriIMGCollection(e.target.value)} />
+                                    </FormControl>
+                                    <Button
+                                        bg={'primary.500'}
+                                        color={'white'}
+                                        onClick={createCollection}
+                                        _hover={{
+                                            bg: 'primary.900',
+                                        }}>
+                                        Create Collection
+                                    </Button>
+                                </Box>
+                                <Spacer />
+                                <Box>
+                                    <Flex
+                                        my="5"
+                                        position="relative"
+                                        minH="250px"
+                                        borderRadius="7"
+                                        backgroundImage={
+                                            `url(${uriIMGNFT})`
+                                        }
+                                        backgroundSize={'cover'}
+                                        backgroundPosition={'center center'} />
+                                    <FormControl>
+                                        <FormLabel>Title</FormLabel>
+                                        <Input type="text" onChange={(e) => setTitleNFT(e.target.value)} />
+                                    </FormControl>
+                                    <FormControl>
+                                        <FormLabel>URL IMG</FormLabel>
+                                        <Input type="text" onChange={(e) => setUriIMGNFT(e.target.value)} />
+                                    </FormControl>
+                                    <FormControl>
+                                        <FormLabel>id_collection</FormLabel>
+                                        <Input type="text" onChange={(e) => setIDCollectionForNFT(e.target.value)} />
+                                    </FormControl>
+                                    <Button
+                                        bg={'primary.500'}
+                                        color={'white'}
+                                        onClick={createNFT}
+                                        _hover={{
+                                            bg: 'primary.900',
+                                        }}>
+                                        Create NFT
+                                    </Button>
+                                </Box>
+                                <Spacer />
+                            </Flex>
+
                         </Box>
-                        <Spacer />
-                        <Box>
-                            <Flex
-                                my="5"
-                                position="relative"
-                                minH="250px"
-                                borderRadius="7"
-                                backgroundImage={
-                                    `url(${uriIMGNFT})`
-                                }
-                                backgroundSize={'cover'}
-                                backgroundPosition={'center center'} />
-                            <FormControl>
-                                <FormLabel>Title</FormLabel>
-                                <Input type="text" onChange={(e) => setTitleNFT(e.target.value)} />
-                            </FormControl>
-                            <FormControl>
-                                <FormLabel>URL IMG</FormLabel>
-                                <Input type="text" onChange={(e) => setUriIMGNFT(e.target.value)} />
-                            </FormControl>
-                            <FormControl>
-                                <FormLabel>id_collection</FormLabel>
-                                <Input type="text" onChange={(e) => setIDCollectionForNFT(e.target.value)} />
-                            </FormControl>
-                            <Button
-                                bg={'primary.500'}
-                                color={'white'}
-                                onClick={createNFT}
-                                _hover={{
-                                    bg: 'primary.900',
-                                }}>
-                                Create NFT
-                            </Button>
+                    </Stack>
+
+                    {collections.length}
+                    {JSON.stringify(collections)}
+
+                    {collections.length > 0 && collections.map((el, i) => (
+                        <Box key={el}>
+                            <ListCollection collection_id={Number(el)} indexCollection />
                         </Box>
-                        <Spacer />
-                    </Flex>
+                    ))
+                    }
 
                 </Box>
-            </Stack>
-
-            {collections.length > 0 &&
-                collections.map((el) => (
-                    <ListCollection key={el} collection_id={el} indexCollection/>
-                ))
-            }
+            ) : (
+                <NotConnected text="Vous n'êtes pas connecté a metamask, ou au contrat NFT" />
+            )}
 
 
         </Box>

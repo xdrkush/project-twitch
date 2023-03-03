@@ -35,13 +35,17 @@ export const App = () => (
 
       {/* /nft */}
       <Route path="/nft" element={<MainLayout />} >
+        {/* /nft */}
         <Route index element={<KushNFTPage />} />
+        {/* /nft/:id */}
         <Route path=":id" element={<KushNFTIDPage />} />
       </Route>
 
       {/* /collection */}
       <Route path="/collection" element={<MainLayout />} >
+        {/* /collection */}
         <Route index element={<KushCollectionPage />} />
+        {/* /collection/:id */}
         <Route path=":id" element={<KushCollectionIDPage />} />
       </Route>
       

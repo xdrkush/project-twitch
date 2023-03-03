@@ -3,8 +3,9 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract KushNFT is ERC721 {
+contract KushNFT is ERC721, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private totalSupplyNFTs; // total NFTs
     Counters.Counter private totalSupplyCertifs; // total Certifs
@@ -32,11 +33,13 @@ contract KushNFT is ERC721 {
     struct NFTUser {
         uint256 id;
         string username;
-        string img;
+        string uriIMG;
         address addr;
+        bool isValid;
         uint256 totalNFTs;
-        mapping(uint256 => bool) nfts; // [ address: bool,  ]
-        mapping(uint256 => bool) certifs; // [ address: bool,  ]
+        mapping(uint256 => bool) collections; // [ uint256: bool,  ]
+        mapping(uint256 => bool) nfts; // [ uint256: bool,  ]
+        mapping(uint256 => bool) certifs; // [ uint256: bool,  ]
     }
 
     // NFT (Collection)
@@ -47,8 +50,8 @@ contract KushNFT is ERC721 {
         string uriIMG;
         uint256 totalSupply;
         uint256 totalConsumers;
-        mapping(uint256 => uint256) tokenIndexs; 
-        mapping(address => mapping(bool => uint256)) consumers;
+        mapping(uint256 => uint256) tokenIndexs;
+        mapping(address => mapping(uint256 => bool)) consumers;
     }
 
     mapping(uint256 => NFTCour) public NFTCours;
@@ -57,52 +60,130 @@ contract KushNFT is ERC721 {
     mapping(address => NFTUser) public NFTUsers;
 
     constructor(
-        string memory name,
-        string memory symbol
-    ) ERC721(name, symbol) {}
+        string memory _name,
+        string memory _symbol
+    ) ERC721(_name, _symbol) {}
 
-    // Total Supply
+    // Total Supply (public)
     function getTotalSupplyNFTs() public view returns (uint256) {
         return totalSupplyNFTs._value;
     }
+
     function getTotalSupplyCollections() public view returns (uint256) {
         return totalSupplyCollections._value;
     }
+
+    function getTotalCertifs() public view returns (uint256) {
+        return totalSupplyCertifs._value;
+    }
+
     function getTotalConsumers() public view returns (uint256) {
         return totalConsumers._value;
     }
-    function getTotalCertifs() public view returns (uint256) {
-        return totalConsumers._value;
+
+    // Register NFT (id) to User (address) (public)
+    function registerConsumer() public {
+        require(
+            NFTUsers[msg.sender].isValid != true,
+            "tu es deja enregistrer, ;)"
+        );
+
+        uint256 id = totalConsumers.current();
+        totalConsumers.increment();
+
+        NFTUsers[msg.sender].id = id;
+        NFTUsers[msg.sender].addr = msg.sender;
+        NFTUsers[msg.sender].isValid = true;
     }
 
-    // Manage Collection
+    // Register NFT (id) to a User (address)
+    function registerConsumerToCollection(uint256 _collection_id) public {
+        require(
+            NFTUsers[msg.sender].collections[_collection_id] != true,
+            "Vous etes deja inscrit"
+        );
+
+        // On l'ajoute dans la collection
+        NFTCollections[_collection_id].consumers[msg.sender][
+            _collection_id
+        ] = true;
+        NFTCollections[_collection_id].totalConsumers += 1;
+
+        // Feature
+        NFTUsers[msg.sender].collections[_collection_id] = true;
+
+        // Et on met le consumer msg.sender dans le premier nft
+        // registerConsumerToNFT(_collection_id);
+        // return nft_id;
+    }
+
+    // Register NFT (id) to User (address) (public)
+    function registerConsumerToNFT(uint256 _nft_id) public {
+        require(
+            NFTUsers[msg.sender].nfts[_nft_id] != true,
+            "Vous etes deja inscrit"
+        );
+        NFTUsers[msg.sender].nfts[_nft_id] = true;
+    }
+
+    // Get Infos Collection By ID (public)
+    function getUserInfo(
+        address _addr
+    )
+        public
+        view
+        returns (uint256, string memory, string memory, address, bool, uint256)
+    {
+        // require(
+        //     NFTUsers[msg.sender].addr == msg.sender,
+        //     "You are not registred."
+        // );
+
+        // Info
+        uint256 id = NFTUsers[_addr].id;
+        string memory username = NFTUsers[_addr].username;
+        string memory img = NFTUsers[_addr].uriIMG;
+        address addr = NFTUsers[_addr].addr;
+        bool valid = NFTUsers[_addr].isValid;
+        uint256 total = NFTUsers[_addr].totalNFTs;
+
+        return (id, username, img, addr, valid, total);
+    }
+
+    // Manage Collection (public)
     function createCollection(
         string memory _title,
         string memory _uriIMG
-    ) public {
-        uint256 id = totalSupplyCollection.current();
-        totalSupplyCollection.increment();
+    ) public onlyOwner {
+        uint256 id = totalSupplyCollections.current();
+        totalSupplyCollections.increment();
 
-        NFTInfosCollections[id].id = id;
-        NFTInfosCollections[id].title = _title;
-        NFTInfosCollections[id].uriIMG = _uriIMG;
-        NFTInfosCollections[id].author = msg.sender;
+        NFTCollections[id].id = id;
+        NFTCollections[id].title = _title;
+        NFTCollections[id].uriIMG = _uriIMG;
+        NFTCollections[id].author = msg.sender;
+
+        // Access collection
+        NFTUsers[msg.sender].collections[id] = true;
     }
 
+    // Get * collections ids (public)
     function getCollectionsIDs() public view returns (uint256[] memory) {
         uint256[] memory values = new uint256[](
-            totalSupplyCollection.current()
+            totalSupplyCollections.current()
         );
 
-        for (uint256 i = 0; i < totalSupplyCollection.current(); i++) {
-            uint256 id = NFTInfosCollections[i].id;
+        for (uint256 i = 0; i < totalSupplyCollections.current(); i++) {
+            uint256 id = NFTCollections[i].id;
             values[i] = id;
         }
+
         return (values);
     }
 
+    // Get Infos Collection By ID (public)
     function getCollectionInfo(
-        uint256 id
+        uint256 _id
     )
         public
         view
@@ -112,32 +193,35 @@ contract KushNFT is ERC721 {
             address,
             string memory,
             uint256,
-            uint256[] memory
+            uint256
         )
     {
         // Info
-        uint256 collection_id = NFTInfosCollections[id].id;
-        string memory title = NFTInfosCollections[id].title;
-        address author = NFTInfosCollections[id].author;
-        string memory uriIMG = NFTInfosCollections[id].uriIMG;
-        uint256 totalSupply = NFTInfosCollections[id].totalSupply;
+        string memory title = NFTCollections[_id].title;
+        address author = NFTCollections[_id].author;
+        string memory uriIMG = NFTCollections[_id].uriIMG;
+        uint256 TSupply = NFTCollections[_id].totalSupply;
+        uint256 TConsumers = NFTCollections[_id].totalConsumers;
 
-        // make array for ids nft in collection
-        uint256[] memory values = new uint256[](totalSupply);
-        for (uint256 i = 0; i < totalSupply; i++) {
-            uint256 nft_id = NFTInfosCollections[collection_id].tokenIndexs[i];
-            values[i] = nft_id;
-        }
-
-        return (id, title, author, uriIMG, totalSupply, values);
+        return (_id, title, author, uriIMG, TSupply, TConsumers);
     }
 
+    // Authorization Collection
+    function isAuthorizedAccessCollection(
+        uint256 _id
+    ) public view returns (bool) {
+        return NFTUsers[msg.sender].collections[_id];
+    }
+
+    // Get NFTs ids in Collections (owner or customer)
     function getCollectionIndexs(
         uint256 _collection_id
     ) public view returns (uint256[] memory) {
-        NFTInfoCollection storage collection = NFTInfosCollections[
-            _collection_id
-        ];
+        if (!isAuthorizedAccessCollection(_collection_id)) {
+            revert("Vous etes pas inscrit pour ce nft::collection");
+        }
+
+        NFTCollection storage collection = NFTCollections[_collection_id];
         uint256[] memory values = new uint256[](collection.totalSupply);
 
         for (uint256 i = 0; i < collection.totalSupply; i++) {
@@ -147,110 +231,59 @@ contract KushNFT is ERC721 {
         return (values);
     }
 
-    // function getCollectionConsumers(
-    //     uint256 _collection_id
-    // ) public view returns (address[] memory) {
-    //     NFTInfoCollection storage collection = NFTInfosCollections[
-    //         _collection_id
-    //     ];
-    //     address[] memory values = new address[](collection.totalConsumers);
+    // Authorization NFT
+    function isAuthorizedAccessNFT(uint256 _id) public view returns (bool) {
+        return NFTUsers[msg.sender].nfts[_id];
+    }
 
-    //     for (uint256 i = 0; i < collection.totalConsumers; i++) {
-    //         address addr = collection.consumers[i];
-    //         values[i] = addr;
-    //     }
+    // Get NFT Infos (owner or customer)
+    function getNFT(
+        uint256 _id
+    ) public view returns (uint256, string memory, string memory, address) {
+        require(
+            isAuthorizedAccessNFT(_id),
+            "Vous etes pas inscrit pour ce nft::cour"
+        );
 
-    //     return (values);
-    // }
+        return (
+            NFTCours[_id].id,
+            NFTCours[_id].title,
+            NFTCours[_id].uriIMG,
+            NFTCours[_id].author
+        );
+    }
 
-    // function registerConsumerToCollection(
-    //     uint256 _collection_id
-    // ) public {
-    //     // NFTInfoCollection storage collection = NFTInfosCollections[
-    //     //     _collection_id
-    //     // ];
-    //     // uint256 nft_id =  collection.tokenIndexs[0];
-
-    //     // On l'ajoute dans la collection
-    //     uint256 idConsumer = NFTInfosCollections[_collection_id].totalConsumers;
-    //     uint256 countNFT = 0;
-    //     NFTInfosCollections[_collection_id].consumers[msg.sender] = NFTInfosCollections[_collection_id].tokenIndexs[countNFT];
-    //     NFTInfosCollections[_collection_id].totalConsumers += 1;
-
-    //     // Et on met le consumer msg.sender dans le premier nft de la list tokenIndexs
-    //     // registerConsumerToNFT(nft_id);
-    //     // return nft_id;
-    // }
-
-    // Manage NFT
-    // function getNFT(
-    //     uint256 _id
-    // )
-    //     public
-    //     view
-    //     returns (uint256, string memory, string memory, address, address[] memory, bool[] memory)
-    // {
-    //     // require(
-    //     //     NFTInfos[_id].consumers[msg.sender] == msg.sender,
-    //     //     "Vous etes pas inscrit pour ce nft"
-    //     // );
-
-    //     NFTInfo storage nft = NFTInfos[_id];
-
-    //     address[] memory keys = new address[](nft.totalConsumers);
-    //     bool[] memory values = new bool[](nft.totalConsumers);
-
-    //     for (uint256 i = 0; i < nft.totalConsumers; i++) {
-    //         bool addr = nft.consumers[msg.sender];
-    //         address addr1 = nft.consumers[msg.sender];
-    //         keys[i] = addr1;
-    //         values[i] = addr;
-    //     }
-
-    //     return (
-    //         NFTInfos[_id].id,
-    //         NFTInfos[_id].title,
-    //         NFTInfos[_id].uriIMG,
-    //         NFTInfos[_id].author,
-    //         keys,
-    //         values
-    //     );
-    // }
-
-    // function registerConsumerToNFT(uint256 _nft_id) public {
-    //     NFTInfos[_nft_id].consumers[msg.sender] = true;
-    // }
-
-    // Mint
+    // Mint (public)
     function mint(
-        address _to,
         uint256 _collection_id,
         string memory _title,
         string memory _uriIMG
-    ) public returns (uint256) {
-        if (NFTInfosCollections[_collection_id].id != _collection_id) {
-            revert("_collection_id is invalid !");
-        }
-        uint256 tokenid = totalSupplyNFT.current();
-        totalSupplyNFT.increment();
-
+    ) public onlyOwner returns (uint256) {
         require(
-            NFTInfosCollections[_collection_id].totalSupply + 1 <=
-                type(uint256).max,
-            "MyNFTContract: total supply overflow"
+            NFTCollections[_collection_id].id == _collection_id,
+            "_collection_id is invalid !"
         );
 
-        NFTInfos[tokenid].id = tokenid;
-        NFTInfos[tokenid].title = _title;
-        NFTInfos[tokenid].uriIMG = _uriIMG;
-        NFTInfos[tokenid].author = msg.sender;
+        uint256 tokenid = totalSupplyNFTs.current();
+        totalSupplyNFTs.increment();
 
-        uint256 index = NFTInfosCollections[_collection_id].totalSupply;
+        NFTCours[tokenid] = NFTCour({
+            id: tokenid,
+            title: _title,
+            uriIMG: _uriIMG,
+            author: msg.sender,
+            price: 0
+        });
 
-        NFTInfosCollections[_collection_id].totalSupply += 1;
-        NFTInfosCollections[_collection_id].tokenIndexs[index] = tokenid;
+        uint256 index = NFTCollections[_collection_id].totalSupply;
 
-        _mint(_to, tokenid);
+        NFTCollections[_collection_id].totalSupply += 1;
+        NFTCollections[_collection_id].tokenIndexs[index] = tokenid;
+
+        _safeMint(msg.sender, tokenid);
+
+        // Access to NFT
+        NFTUsers[msg.sender].nfts[tokenid] = true;
 
         return tokenid;
     }

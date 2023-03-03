@@ -12,21 +12,20 @@ import { features } from "process";
 // 
 
 export default function CardNFT(props: any) {
-    const { nft_id, collection_id } = props
-    const { provider, siteConnected, isOwner, account, signer }: any = useOutletContext()
+    const { nft_id } = props
+    const { provider, siteConnected }: any = useOutletContext()
 
     const KushNFT = new ethers.Contract(config.nft, KushNFTABI, provider)
     const kushNFT = KushNFT.connect(provider)
 
-    type C = { id: number, title: string, uriIMG: string };
+    type C = { id: number, title: string, uriIMG: string, author: string };
 
     const [NFT, setNFT] = useState<C>()
 
     const loadContract = async () => {
-        console.log('getNFT', collection_id, nft_id)
-        const col = await kushNFT.getNFT(nft_id)
-        console.log('getNFT 2', col)
-        setNFT({ id: Number(col[0]), title: String(col[1]), uriIMG: String(col[2]) })
+        const [id, title, img, author] = await kushNFT.getNFT(nft_id)
+        setNFT({ id: Number(id), title: String(title), uriIMG: String(img), author: String(author) })
+        console.log('NFT', provider, await kushNFT.isAuthorizedAccessNFT(nft_id))
     }
 
     useEffect(() => {
@@ -37,8 +36,9 @@ export default function CardNFT(props: any) {
 
     return (
         <Box p='4' w="full">
+            {nft_id}
 
-            {NFT && (
+            {siteConnected && NFT && (
 
                 <Link
                     p={2}
@@ -52,7 +52,7 @@ export default function CardNFT(props: any) {
                         minH="250px"
                         borderRadius="7"
                         backgroundImage={
-                            `url(${ NFT.uriIMG })`
+                            `url(${NFT.uriIMG})`
                         }
                         backgroundSize={'cover'}
                         backgroundPosition={'center center'}>
@@ -68,7 +68,19 @@ export default function CardNFT(props: any) {
                                         fontWeight={700}
                                         lineHeight={1.2}
                                         fontSize={'xl'}>
-                                        {NFT.id} :: {NFT.title}
+                                        Cour: {NFT.id}
+                                    </Text>
+                                    <Text
+                                        color={'white'}
+                                        fontWeight={700}
+                                        lineHeight={1.2}
+                                        fontSize={'xl'}>
+                                        {NFT.title}
+                                    </Text>
+                                    <Text
+                                        color={'white'}
+                                        fontSize={'xl'}>
+                                        { '0x...' + NFT.author.slice(-5)}
                                     </Text>
                                 </Box>
                             </Stack>
