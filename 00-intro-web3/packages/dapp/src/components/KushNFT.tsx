@@ -14,6 +14,7 @@ export const KushNFTInfo = (props: any) => {
 
     const KushNFT = new ethers.Contract(config.nft, KushNFTABI, provider)
     const kushNFT = KushNFT.connect(provider)
+    const userProvider = kushNFT.connect(account)
 
     const [titleNFT, setTitleNFT] = useState("")
     const [uriIMGNFT, setUriIMGNFT] = useState("https://www.zupimages.net/up/23/08/tus4.jpeg")
@@ -28,12 +29,13 @@ export const KushNFTInfo = (props: any) => {
 
 
     async function loadContract() {
-        const col = await kushNFT.getCollectionsIDs()
+        const col = await userProvider.getCollectionsIDs()
         setSupplyNFT((await kushNFT.getTotalSupplyNFTs()).toString())
         setSupplyCollection((await kushNFT.getTotalSupplyCollections()).toString())
         setSupplyCertifs((await kushNFT.getTotalCertifs()).toString())
         setSupplyConsumers((await kushNFT.getTotalConsumers()).toString())
         setCollections((col))
+        console.log('SetCollectionIDS', col)
     }
 
     useEffect(() => {

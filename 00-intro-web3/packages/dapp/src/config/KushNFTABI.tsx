@@ -613,6 +613,19 @@ export const KushNFTABI = `[
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "isAuthorizedAccessUser",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",

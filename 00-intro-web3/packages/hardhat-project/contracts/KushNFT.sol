@@ -57,12 +57,35 @@ contract KushNFT is ERC721, Ownable {
     mapping(uint256 => NFTCour) public NFTCours;
     mapping(uint256 => NFTCertif) public NFTCertifs;
     mapping(uint256 => NFTCollection) public NFTCollections;
+    uint256[] nftCollectionsARR;
     mapping(address => NFTUser) public NFTUsers;
 
     constructor(
         string memory _name,
         string memory _symbol
     ) ERC721(_name, _symbol) {}
+
+    // Authorization User
+    function isAuthorizedAccessUser() public view returns (bool) {
+        return NFTUsers[msg.sender].isValid;
+    }
+
+    modifier userAccess() {
+        require(NFTUsers[msg.sender].isValid, "Vous n etes pas inscrit");
+        _;
+    }
+
+    // Authorization Collection
+    function isAuthorizedAccessCollection(
+        uint256 _id
+    ) public view returns (bool) {
+        return NFTUsers[msg.sender].collections[_id];
+    }
+
+    // Authorization NFT
+    function isAuthorizedAccessNFT(uint256 _id) public view returns (bool) {
+        return NFTUsers[msg.sender].nfts[_id];
+    }
 
     // Total Supply (public)
     function getTotalSupplyNFTs() public view returns (uint256) {
@@ -83,10 +106,7 @@ contract KushNFT is ERC721, Ownable {
 
     // Register NFT (id) to User (address) (public)
     function registerConsumer() public {
-        require(
-            NFTUsers[msg.sender].isValid != true,
-            "tu es deja enregistrer, ;)"
-        );
+        require(isAuthorizedAccessUser() != true, "tu es deja enregistrer, ;)");
 
         uint256 id = totalConsumers.current();
         totalConsumers.increment();
@@ -97,10 +117,12 @@ contract KushNFT is ERC721, Ownable {
     }
 
     // Register NFT (id) to a User (address)
-    function registerConsumerToCollection(uint256 _collection_id) public {
+    function registerConsumerToCollection(
+        uint256 _collection_id
+    ) public userAccess {
         require(
-            NFTUsers[msg.sender].collections[_collection_id] != true,
-            "Vous etes deja inscrit"
+            isAuthorizedAccessCollection(_collection_id) != true,
+            "Vous etes deja inscrit a la collection"
         );
 
         // On l'ajoute dans la collection
@@ -118,10 +140,10 @@ contract KushNFT is ERC721, Ownable {
     }
 
     // Register NFT (id) to User (address) (public)
-    function registerConsumerToNFT(uint256 _nft_id) public {
+    function registerConsumerToNFT(uint256 _nft_id) public userAccess {
         require(
             NFTUsers[msg.sender].nfts[_nft_id] != true,
-            "Vous etes deja inscrit"
+            "Vous etes deja inscrit au nft"
         );
         NFTUsers[msg.sender].nfts[_nft_id] = true;
     }
@@ -132,6 +154,7 @@ contract KushNFT is ERC721, Ownable {
     )
         public
         view
+        userAccess
         returns (uint256, string memory, string memory, address, bool, uint256)
     {
         // require(
@@ -163,22 +186,29 @@ contract KushNFT is ERC721, Ownable {
         NFTCollections[id].uriIMG = _uriIMG;
         NFTCollections[id].author = msg.sender;
 
+        nftCollectionsARR.push(id);
+
         // Access collection
         NFTUsers[msg.sender].collections[id] = true;
     }
 
     // Get * collections ids (public)
-    function getCollectionsIDs() public view returns (uint256[] memory) {
-        uint256[] memory values = new uint256[](
-            totalSupplyCollections.current()
-        );
+    function getCollectionsIDs()
+        public
+        view
+        userAccess
+        returns (uint256[] memory)
+    {
+        // uint256[] memory values = new uint256[](
+        //     totalSupplyCollections.current()
+        // );
 
-        for (uint256 i = 0; i < totalSupplyCollections.current(); i++) {
-            uint256 id = NFTCollections[i].id;
-            values[i] = id;
-        }
+        // for (uint256 i = 0; i < totalSupplyCollections.current(); i++) {
+        //     uint256 id = NFTCollections[i].id;
+        //     values[i] = id;
+        // }
 
-        return (values);
+        return (nftCollectionsARR);
     }
 
     // Get Infos Collection By ID (public)
@@ -187,6 +217,7 @@ contract KushNFT is ERC721, Ownable {
     )
         public
         view
+        userAccess
         returns (
             uint256,
             string memory,
@@ -206,42 +237,58 @@ contract KushNFT is ERC721, Ownable {
         return (_id, title, author, uriIMG, TSupply, TConsumers);
     }
 
-    // Authorization Collection
-    function isAuthorizedAccessCollection(
-        uint256 _id
-    ) public view returns (bool) {
-        return NFTUsers[msg.sender].collections[_id];
-    }
-
     // Get NFTs ids in Collections (owner or customer)
     function getCollectionIndexs(
         uint256 _collection_id
-    ) public view returns (uint256[] memory) {
-        if (!isAuthorizedAccessCollection(_collection_id)) {
-            revert("Vous etes pas inscrit pour ce nft::collection");
-        }
+    ) public view userAccess returns (uint256[] memory) {
+        require(
+            isAuthorizedAccessCollection(_collection_id) == true,
+            "Vous etes pas inscrit pour ce nft::collection"
+        );
 
         NFTCollection storage collection = NFTCollections[_collection_id];
         uint256[] memory values = new uint256[](collection.totalSupply);
 
         for (uint256 i = 0; i < collection.totalSupply; i++) {
-            uint256 id = collection.tokenIndexs[i];
-            values[i] = id;
+            if (NFTUsers[msg.sender].nfts[i] == true) {
+                uint256 id = collection.tokenIndexs[i];
+                values[i] = id;
+            }
         }
+        
         return (values);
     }
 
-    // Authorization NFT
-    function isAuthorizedAccessNFT(uint256 _id) public view returns (bool) {
-        return NFTUsers[msg.sender].nfts[_id];
+    // Get NFTs ids in Collections (owner or customer)
+    function getIdNFTInCollectionByIndex(
+        uint256 _collection_id,
+        uint256 index
+    ) public view userAccess returns (uint256) {
+        require(
+            isAuthorizedAccessCollection(_collection_id) == true,
+            "Vous etes pas inscrit pour ce nft::collection"
+        );
+        uint256 idNFT = NFTCollections[_collection_id].tokenIndexs[index];
+
+        require(
+            isAuthorizedAccessNFT(idNFT) == true,
+            "Vous etes pas inscrit pour ce nft::cour"
+        );
+
+        return idNFT;
     }
 
     // Get NFT Infos (owner or customer)
     function getNFT(
         uint256 _id
-    ) public view returns (uint256, string memory, string memory, address) {
+    )
+        public
+        view
+        userAccess
+        returns (uint256, string memory, string memory, address)
+    {
         require(
-            isAuthorizedAccessNFT(_id),
+            isAuthorizedAccessNFT(_id) == true,
             "Vous etes pas inscrit pour ce nft::cour"
         );
 

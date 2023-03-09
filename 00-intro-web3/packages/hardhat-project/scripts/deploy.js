@@ -54,20 +54,20 @@ async function main() {
     `KushNFT is deployed to address: ${kushNFT.address}`
   );
 
-  // Create Collection
-  await kushNFT.createCollection('HTML', 'https://www.zupimages.net/up/23/08/rt0i.png');
-  await kushNFT.createCollection('CSS', 'https://www.zupimages.net/up/23/08/dise.png');
+  // // Create Collection
+  // await kushNFT.createCollection('HTML', 'https://www.zupimages.net/up/23/08/rt0i.png');
+  // await kushNFT.createCollection('CSS', 'https://www.zupimages.net/up/23/08/dise.png');
 
-  // // Create NFTs (in collection)< 
-  await kushNFT.mint(0, 'html-01', 'https://www.zupimages.net/up/23/08/xaj3.png');
-  await kushNFT.mint(0, 'html-02', 'https://www.zupimages.net/up/23/08/yne8.png');
-  await kushNFT.mint(0, 'html-03', 'https://www.zupimages.net/up/23/08/hewz.png');
-  await kushNFT.mint(1, 'css-01', 'https://www.zupimages.net/up/23/08/mppo.png');
-  await kushNFT.mint(1, 'css-02', 'https://www.zupimages.net/up/23/08/matq.png');
-  // await kushNFT.mint(1, 'css-03', 'https://www.zupimages.net/up/23/08/w64h.png');
+  // // // Create NFTs (in collection)< 
+  // await kushNFT.mint(0, 'html-01', 'https://www.zupimages.net/up/23/08/xaj3.png');
+  // await kushNFT.mint(0, 'html-02', 'https://www.zupimages.net/up/23/08/yne8.png');
+  // await kushNFT.mint(0, 'html-03', 'https://www.zupimages.net/up/23/08/hewz.png');
+  // await kushNFT.mint(1, 'css-01', 'https://www.zupimages.net/up/23/08/mppo.png');
+  // await kushNFT.mint(1, 'css-02', 'https://www.zupimages.net/up/23/08/matq.png');
+  // // await kushNFT.mint(1, 'css-03', 'https://www.zupimages.net/up/23/08/w64h.png');
 
   // Register user
-  await kushNFT.registerConsumer();
+  // await kushNFT.registerConsumer();
 
 }
 
