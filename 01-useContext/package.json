@@ -1,0 +1,21 @@
+{
+  "name": "02-useContext",
+  "version": "1.0.0",
+  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dapp": "npm run start --workspace=dapp",
+    "help": "npm run help --workspace=hardhat-project",
+    "test": "npm run test --workspace=hardhat-project",
+    "blk": "npm run blk --workspace=hardhat-project",
+    "deploy": "npm run deploy --workspace=hardhat-project",
+    "clean": "npm run clean --workspace=hardhat-project"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}

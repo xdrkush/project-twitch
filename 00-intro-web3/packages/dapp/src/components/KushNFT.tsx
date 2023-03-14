@@ -69,6 +69,7 @@ export const KushNFTInfo = (props: any) => {
     return (
         <Box>
             <Text> Info NFT/Collection </Text>
+            <Text> Connected: {siteConnected} </Text>
 
             <Box>
                 <Text fontSize={'lg'} color={'gray.600'}>
