@@ -10,6 +10,8 @@ export const TransfertETH = () => {
     const [error, setError] = useState('');
     const [estimateGasPrice, setEstimateGasPrice] = useState('');
 
+    console.log('provider', provider)
+
     const toast = useToast()
 
     useEffect(() => {
