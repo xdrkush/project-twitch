@@ -11,6 +11,8 @@ import { TokenPage } from "./pages/Token";
 import { NFTPage } from "./pages/NFT";
 import { NotFoundPage } from "./pages/NotFound";
 import { SwapPage } from "./pages/Swap";
+import { CourID } from "./pages/CourID";
+import { CollectionID } from "./pages/CollectionID";
 
 // Router
 export const App = () => (
@@ -32,6 +34,19 @@ export const App = () => (
         {/* /#/swap */}
         <Route path="swap" element={<SwapPage />} />
 
+      </Route>
+
+
+      {/* /cour */}
+      <Route path="/cour" element={<MainLayout />} >
+        {/* /cour/:id */}
+        <Route path=":id" element={<CourID />} />
+      </Route>
+
+      {/* /collection */}
+      <Route path="/collection" element={<MainLayout />} >
+        {/* /collection/:id */}
+        <Route path=":id" element={<CollectionID />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

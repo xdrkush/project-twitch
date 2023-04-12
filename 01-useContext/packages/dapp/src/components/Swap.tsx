@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { EthersContext } from '../hooks/useEthers';
+import { EthersContext } from '../providers/ethersProvider';
 import { Box, Button, Flex, Text, Input, Select, InputGroup, InputLeftElement, useColorModeValue } from '@chakra-ui/react';
 
 export const Swap = () => {

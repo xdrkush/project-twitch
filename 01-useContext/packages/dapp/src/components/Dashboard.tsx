@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { EthersContext } from '../hooks/useEthers';
+import { EthersContext } from '../providers/ethersProvider';
 import { Box, Button, Text } from '@chakra-ui/react';
 
 export const DashboardProfile = () => {

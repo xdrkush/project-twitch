@@ -46,7 +46,8 @@ async function main() {
 
   // Kush NFT
   const KushNFT = await hre.ethers.getContractFactory("KushNFT");
-  const kushNFT = await KushNFT.deploy("KushNFT", "KUSH");
+  // const kushNFT = await KushNFT.deploy("KushNFT", "KUSH", kush.address.toString());
+  const kushNFT = await KushNFT.deploy("KushNFT", "KUSH", kush.address.toString());
 
   await kushNFT.deployed();
 
@@ -55,19 +56,19 @@ async function main() {
   );
 
   // // Create Collection
-  // await kushNFT.createCollection('HTML', 'https://www.zupimages.net/up/23/08/rt0i.png');
-  // await kushNFT.createCollection('CSS', 'https://www.zupimages.net/up/23/08/dise.png');
+  await kushNFT.createCollection('HTML', 'https://www.zupimages.net/up/23/08/rt0i.png');
+  await kushNFT.createCollection('CSS', 'https://www.zupimages.net/up/23/08/dise.png');
 
-  // // // Create NFTs (in collection)< 
-  // await kushNFT.mint(0, 'html-01', 'https://www.zupimages.net/up/23/08/xaj3.png');
-  // await kushNFT.mint(0, 'html-02', 'https://www.zupimages.net/up/23/08/yne8.png');
-  // await kushNFT.mint(0, 'html-03', 'https://www.zupimages.net/up/23/08/hewz.png');
-  // await kushNFT.mint(1, 'css-01', 'https://www.zupimages.net/up/23/08/mppo.png');
-  // await kushNFT.mint(1, 'css-02', 'https://www.zupimages.net/up/23/08/matq.png');
-  // // await kushNFT.mint(1, 'css-03', 'https://www.zupimages.net/up/23/08/w64h.png');
+  // Create NFTs (in collection)< 
+  await kushNFT.mint('html-00', 'https://www.zupimages.net/up/23/08/xaj3.png', 0, 0);
+  await kushNFT.mint('html-01', 'https://www.zupimages.net/up/23/08/yne8.png', 0, 1);
+  await kushNFT.mint('html-02', 'https://www.zupimages.net/up/23/08/hewz.png', 0, 2);
+  await kushNFT.mint('css-00', 'https://www.zupimages.net/up/23/08/mppo.png', 1, 0);
+  await kushNFT.mint('css-01', 'https://www.zupimages.net/up/23/08/matq.png', 1, 1);
+  await kushNFT.mint('css-02', 'https://www.zupimages.net/up/23/08/w64h.png', 1, 2);
 
   // Register user
-  // await kushNFT.registerConsumer();
+  await kushNFT.registerConsumer();
 
 }
 

@@ -1,11 +1,4 @@
-import {
-    Flex,
-    VStack,
-    Stack,
-    Text,
-    Button,
-    useBreakpointValue,
-} from '@chakra-ui/react';
+import { Flex, VStack, Stack, Text, Button, useBreakpointValue } from '@chakra-ui/react';
 
 export const Hero = (props: any) => {
     const { title } = props;

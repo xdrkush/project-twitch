@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { ethers } from "ethers";
-import { EthersContext } from '../hooks/useEthers';
-import { Box, Button, Flex, Text, Input, Select, InputGroup, InputLeftElement, useColorModeValue, useToast } from '@chakra-ui/react';
+import { EthersContext } from '../providers/ethersProvider';
+import { Box, Button, Flex, Text, Input, InputGroup, InputLeftElement, useColorModeValue, useToast } from '@chakra-ui/react';
 
 export const TransfertETH = () => {
     const { signer, isConnected, balance, connectToMetamask, provider } = useContext(EthersContext);

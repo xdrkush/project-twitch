@@ -1,24 +1,19 @@
-import { useEffect, ReactNode } from 'react';
+import { ReactNode } from 'react';
 import {
     IconButton,
     Box,
     Flex,
     Icon,
-    Drawer,
-    DrawerContent,
-    Text, DrawerOverlay,
+    Text,
     BoxProps,
     FlexProps,
     Link,
-    useColorModeValue,
-    Slide
+    useColorModeValue
 } from '@chakra-ui/react';
 import {
     FiHome,
     FiTrendingUp,
-    FiCompass,
-    FiStar,
-    FiSettings
+    FiCompass
 } from 'react-icons/fi';
 import {
     HamburgerIcon,
@@ -42,21 +37,26 @@ const LinkItems: Array<LinkItemProps> = [
 export const Sidebar = ({ isOpen, onOpen, onClose }: any) => {
 
     return (
-        <Flex w={'100%'} borderRight='1px'
-            borderStyle={'solid'}
-            backgroundColor={useColorModeValue('gray.100', 'darkness.900')}
-            borderColor={useColorModeValue('gray.100', 'primary.100')}
-        >
+        <Box>
+            <Flex
+                position="fixed"
+                w={isOpen ? '230px' : '60px'}
+                borderRight='1px'
+                borderStyle={'solid'}
+                backgroundColor={useColorModeValue('gray.100', 'darkness.900')}
+                borderColor={useColorModeValue('gray.100', 'primary.100')}
+            >
 
-            <Flex minH="100vh" w="100%">
-                <SidebarContent
-                    onClose={onClose}
-                    onOpen={onOpen}
-                    isOpen={isOpen}
-                />
+                <Flex minH="100vh">
+                    <SidebarContent
+                        onClose={onClose}
+                        onOpen={onOpen}
+                        isOpen={isOpen}
+                    />
+                </Flex>
+
             </Flex>
-
-        </Flex>
+        </Box>
     );
 }
 
@@ -71,7 +71,7 @@ const SidebarContent = ({ onClose, isOpen, onOpen, ...rest }: SidebarProps) => {
         <Box {...rest} w="100%">
             <Flex>
 
-                <Flex h="20" w="100%" alignItems="center" pl="2" justifyContent="space-between">
+                <Flex h="20" alignItems="center" pl="2">
                     <IconButton
                         onClick={isOpen ? onClose : onOpen}
                         icon={
@@ -83,20 +83,20 @@ const SidebarContent = ({ onClose, isOpen, onOpen, ...rest }: SidebarProps) => {
                 </Flex>
 
                 {isOpen && (
-                    <Slide direction='left' in={isOpen} style={{ zIndex: 0, width: '1', height: '0' }}>
-                        <Flex h="20" w="100%" alignItems="center" justifyContent="space-between">
-                            <Text ml="12" fontSize="2xl" fontFamily="monospace" zIndex="10" fontWeight="bold">
-                                Dr Kush
-                            </Text>
-                        </Flex>
-                    </Slide>
+                    // <Slide direction='left' in={isOpen} style={{ zIndex: 0, width: '1', height: '0' }}>
+                    <Flex h="20" w="100%" alignItems="center">
+                        <Text fontSize="2xl" fontFamily="monospace" zIndex="10" fontWeight="bold">
+                            DrKush
+                        </Text>
+                    </Flex>
+                    // </Slide>
                 )}
 
             </Flex>
 
             <Box>
                 {
-                    LinkItems.map((link) => (
+                    LinkItems.length > 0 && LinkItems.map((link) => (
                         <NavItem key={link.name} icon={link.icon} path={link.path} isOpen={isOpen}>
                             {link.name}
                         </NavItem>

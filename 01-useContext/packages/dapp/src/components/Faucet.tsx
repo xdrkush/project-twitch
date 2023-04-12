@@ -1,9 +1,15 @@
 import { useContext } from 'react';
-import { EthersContext } from '../hooks/useEthers';
+import { EthersContext } from '../providers/ethersProvider';
+import { TokenContext } from '../providers/tokenProvider';
+import { FaucetContext } from '../providers/faucetProvider';
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react';
 
 export const FaucetToken = () => {
     const { isConnected, connectToMetamask } = useContext(EthersContext);
+    const { name } = useContext(TokenContext);
+    const { addressSC, balance, claimFaucet } = useContext(FaucetContext);
+
+    console.log("faucet comp", name, addressSC, balance)
 
     return (
         <Flex align={'center'} justify={'center'}>
@@ -14,10 +20,19 @@ export const FaucetToken = () => {
                 {!isConnected ? (
                     <Button onClick={connectToMetamask}>Connect with Metamask</Button>
                 ) : (
-                    <Flex justifyContent={'space-between'}>
-                        <Text>Faucet:</Text>
-                        <Button bg="primary.900" minW="50%">Claim</Button>
-                    </Flex>
+                    <Box>
+                        <Text>Faucet</Text>
+                        <Text>
+                            {addressSC}
+                        </Text>
+                        <Text>
+                            balance: {balance}
+                        </Text>
+
+                        <Flex pt={"5"} justifyContent={'center'}>
+                            <Button bg="primary.900" minW="50%" onClick={claimFaucet}>Claim</Button>
+                        </Flex>
+                    </Box>
                 )}
             </Box>
         </Flex>

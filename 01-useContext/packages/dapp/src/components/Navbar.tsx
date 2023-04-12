@@ -12,14 +12,17 @@ import {
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import { ColorModeSwitcher } from "./ColorSwitcher";
-import { EthersContext } from "../hooks/useEthers";
+import { EthersContext } from "../providers/ethersProvider";
 
 export function Navbar({ isOpen, onOpen, onClose, openModalSearch }: any) {
-    const { isConnected, connectToMetamask, address, balance } = useContext(EthersContext);
+    const { isConnected, connectToMetamask, address, balance, logout } = useContext(EthersContext);
 
     return (
         <Box>
             <Flex
+                w={isOpen ? 'calc(100% - 230px)' : 'calc(100% - 60px)'}
+                position="fixed"
+                zIndex="10"
                 bg={useColorModeValue('white', 'gray.800')}
                 color={useColorModeValue('gray.600', 'white')}
                 minH={'60px'}
@@ -33,7 +36,7 @@ export function Navbar({ isOpen, onOpen, onClose, openModalSearch }: any) {
                     flex={{ base: 1, md: 'auto' }}
                     ml={{ base: -2 }}
                     display={{ base: 'flex' }}>
-                    <Button borderRadius='5% 0 0 5%' onClick={openModalSearch}>CTRL+K</Button>
+                    <Button display={{ xs: 'none' }} borderRadius='5% 0 0 5%' onClick={openModalSearch}>CTRL+K</Button>
                     <InputGroup w="30%" >
                         <InputLeftElement
                             pointerEvents='none'
@@ -57,17 +60,22 @@ export function Navbar({ isOpen, onOpen, onClose, openModalSearch }: any) {
                     </Link>
                 </Flex>
 
-                <Box>
-                    <Text>Addr: {address} </Text>
-                    <Text>balance: {balance} </Text>
-                </Box>
+                {isConnected && (
+                    <Box textAlign="center">
+                        <Text>{address} </Text>
+                        <Text>balance: {balance} </Text>
+                    </Box>
+                )}
 
                 <Stack
                     flex={{ base: 1, md: 0 }}
                     justify={'flex-end'}
                     direction={'row'}
                     spacing={6}>
+
                     <ColorModeSwitcher justifySelf="flex-end" />
+
+
 
                     {isConnected ? (
 
@@ -99,12 +107,13 @@ export function Navbar({ isOpen, onOpen, onClose, openModalSearch }: any) {
                                 <MenuDivider />
                                 <MenuItem>Your Servers</MenuItem>
                                 <MenuItem>Account Settings</MenuItem>
-                                <MenuItem>Logout</MenuItem>
+                                <MenuItem onClick={logout}>Logout</MenuItem>
                             </MenuList>
                         </Menu>
                     ) : (
                         <Button onClick={connectToMetamask}>Connect Wallet</Button>
                     )}
+
                 </Stack>
             </Flex>
         </Box>

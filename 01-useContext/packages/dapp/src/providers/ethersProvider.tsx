@@ -1,8 +1,10 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ethers, Signer, providers } from 'ethers';
+import { ErrorContext } from './errorProvider';
 
 interface EthersContextType {
-    connectToMetamask: () => void,
+    connectToMetamask: () => void;
+    logout: () => void;
     provider: providers.Web3Provider | null;
     signer: Signer | null;
     address: string | null;
@@ -13,6 +15,7 @@ interface EthersContextType {
 
 const EthersContext = createContext<EthersContextType>({
     connectToMetamask: () => { },
+    logout: () => { },
     provider: null,
     signer: null,
     address: null,
@@ -26,6 +29,8 @@ interface EthersProviderProps {
 }
 
 const EthersProvider: React.FC<EthersProviderProps> = ({ children }) => {
+    const { setError } = useContext(ErrorContext)
+
     const [provider, setProvider] = useState<providers.Web3Provider | null>(null);
     const [signer, setSigner] = useState<Signer | null>(null);
     const [address, setAddress] = useState<string | null>(null);
@@ -34,15 +39,21 @@ const EthersProvider: React.FC<EthersProviderProps> = ({ children }) => {
     const [isConnected, setIsConnected] = useState<boolean>(false);
 
     useEffect(() => {
+        if (typeof window.ethereum === 'undefined') {
+            setError('Veuillez installer Metamask pour utiliser cette application');
+            return;
+        }
+
         const initialize = async () => {
             if (!window.ethereum)
-                throw new Error("NO_ETH_BROWSER_WALLET");
+                return new Error("NO_ETH_BROWSER_WALLET");
 
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const signer = provider.getSigner();
             const address = await signer.getAddress();
             const network = await provider.getNetwork();
             const balance = ethers.utils.formatEther(await provider.getBalance(address));
+
             setProvider(provider);
             setSigner(signer);
             setAddress(address);
@@ -67,7 +78,7 @@ const EthersProvider: React.FC<EthersProviderProps> = ({ children }) => {
     }, []);
 
     useEffect(() => {
-        const fetchAccountData = async () => {
+        const fetchData = async () => {
             if (provider) {
                 try {
                     const accounts = await provider.listAccounts();
@@ -84,13 +95,14 @@ const EthersProvider: React.FC<EthersProviderProps> = ({ children }) => {
                     } else {
                         setIsConnected(false);
                     }
-                } catch (err) {
-                    console.error(err);
+                } catch (err: any) {
+                    setError(err.message)
+                    console.log(err);
                 }
             }
         };
 
-        fetchAccountData();
+        fetchData();
     }, [provider]);
 
     const connectToMetamask = async () => {
@@ -104,17 +116,33 @@ const EthersProvider: React.FC<EthersProviderProps> = ({ children }) => {
             // Update context values
             setProvider(web3Provider);
             setSigner(web3Signer);
+
             const address = await web3Signer.getAddress();
+
             setAddress(address);
             setIsConnected(true);
 
-        } catch (error) {
-            console.log(error);
+        } catch (err: any) {
+            setError(err.message)
+            console.log(err);
+        }
+    };
+
+    const logout = async () => {
+        if (window.ethereum && window.ethereum.isMetaMask && window.ethereum.isConnected()) {
+            try {
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                await window.ethereum.disconnect();
+            } catch (err: any) {
+                setError(err.message)
+                console.error(err);
+            }
         }
     };
 
     const values: EthersContextType = {
         connectToMetamask,
+        logout,
         provider,
         signer,
         address,

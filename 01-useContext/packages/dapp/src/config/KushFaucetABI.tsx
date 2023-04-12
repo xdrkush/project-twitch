@@ -1,5 +1,3 @@
-
-
 export const KushFaucetABI = `[
   {
     "inputs": [
@@ -14,59 +12,14 @@ export const KushFaucetABI = `[
   },
   {
     "inputs": [],
-    "name": "balanceFaucet",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "claim",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "contributors",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "deposit",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
-    "name": "getBalanceOfFaucet",
+    "name": "getBalance",
     "outputs": [
       {
         "internalType": "uint256",
@@ -81,11 +34,11 @@ export const KushFaucetABI = `[
     "inputs": [
       {
         "internalType": "address",
-        "name": "contributor",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "getContributor",
+    "name": "lastRequest",
     "outputs": [
       {
         "internalType": "uint256",

@@ -1,26 +1,21 @@
 import { useContext, useEffect, useState } from 'react';
-import { EthersContext } from '../hooks/useEthers';
-import { ethers, BigNumber } from 'ethers';
-import { config } from "../config";
+import { ethers } from 'ethers';
 import { Box, Button, Flex, Text, Input, InputGroup, InputLeftElement, useColorModeValue, useToast } from '@chakra-ui/react';
-
-import { KushABI } from "../config/KushABI"
-import { KushFaucetABI } from "../config/KushFaucetABI"
+import { EthersContext } from '../providers/ethersProvider';
+import { TokenContext } from '../providers/tokenProvider';
 
 export const TransfertToken = () => {
     const { isConnected, connectToMetamask, provider, signer } = useContext(EthersContext);
-    const [totalSupply, setTotalSupply] = useState("")
-    const [addressContract, setAddressContract] = useState("")
-    const [symbol, setSymbol] = useState("")
-    const [name, setName] = useState("")
-    const [balance, setBalance] = useState("")
+    const { addressSC, balance, totalSupply, name, token } = useContext(TokenContext);
     const [error, setError] = useState('');
 
     const [addressReciever, setAddressReciever] = useState("")
     const [amount, setAmount] = useState('');
     const [estimateGasPrice, setEstimateGasPrice] = useState('');
 
-    const toast = useToast()
+    const toast = useToast();
+
+    console.log('token comp', balance)
 
     useEffect(() => {
         if (error)
@@ -34,63 +29,21 @@ export const TransfertToken = () => {
             })
     }, [error])
 
-    console.log('provider TOKEN', provider, config)
-    const loadContract = async () => {
-        if (!provider || !signer)
-            return
-        // throw new Error("NO_PROVIDER");
-
-        // console.log(await provider.getGasPrice())
-        const KushToken = new ethers.Contract(config.token, KushABI, provider)
-        // const KushTokenFaucet = new ethers.Contract(config.faucet, KushFaucetABI, provider)
-        const token = KushToken.connect(provider)
-        // const faucet = KushTokenFaucet.connect(provider)
-
-        console.log(token.address, await token.symbol())
-
-        setTotalSupply(`${BigNumber.from(await token.totalSupply())}`)
-        setAddressContract(`${token.address}`)
-        setSymbol(`${await token.symbol()}`)
-        setName(`${await token.name()}`)
-        setBalance(`${ethers.utils.formatEther(await token.balanceOf(signer.getAddress()))}`)
-
-        // console.log('loadContract Token', token, faucet, name)
-
-    }
-
-    useEffect(() => {
-        loadContract()
-    }, [])
-
-    const startPayment = async ({ ether, addr }: any) => {
-        try {
-            if (!window.ethereum || !signer)
-                throw new Error("NO_ETH_BROWSER_WALLET");
-
-            const tx = await signer.sendTransaction({
-                to: addr,
-                value: ethers.utils.parseEther(ether)
-            });
-
-            const gasPrice = ethers.utils.formatEther(Number(tx.gasPrice))
-            const value = ethers.utils.formatEther(tx.value)
-
-            console.log('tx', tx, gasPrice, value)
-        } catch (err: any) {
-            setError(err.message);
-        }
-    };
-
     const sendTransaction = async () => {
         try {
-            await startPayment({
-                ether: amount?.toString() || '',
-                addr: addressReciever?.toString() || '',
-            });
+            if (!token || !signer)
+                throw new Error("NO_ETH_BROWSER_WALLET");
+
+            const contractWithSigner = token.connect(signer);
+
+            // Bug au niveau proportions dans metamask je sais pas pourqoi à règler
+            const total = ethers.utils.parseUnits(amount?.toString(), 18);
+            const tx = contractWithSigner.transfer(`${addressReciever?.toString()}`, total);
+
+            console.log('tx', tx)
 
         } catch (err: any) {
-            console.log('err', err)
-            setError(err.message)
+            setError(err.message);
         }
     };
 
@@ -112,8 +65,10 @@ export const TransfertToken = () => {
                 {!isConnected ? (
                     <Button onClick={connectToMetamask}>Connect with Metamask</Button>
                 ) : (
-                    <Box textAlign="left">
-                        <Text>Transfert ({name}):</Text>
+                    <Box textAlign="center">
+                        <Text>{name}</Text>
+                        <Text>{addressSC} </Text>
+                        <Text>Total supply: {totalSupply}</Text>
 
                         <Text fontSize='md'>Your balance: {balance} </Text>
 
@@ -153,9 +108,9 @@ export const TransfertToken = () => {
                                     />
                                 </InputGroup>
 
-                                {/* {estimateGasPrice && (
-                                    <Text fontSize='md'>est gasPrice: {estimateGasPrice} gwei </Text>
-                                )} */}
+                                {estimateGasPrice && (
+                                    <Text fontSize='md'>estimate gas: {estimateGasPrice} gwei </Text>
+                                )}
 
                             </Box>
 
